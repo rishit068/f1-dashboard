@@ -6,6 +6,21 @@ import type {
 
 const BASE = 'https://api.openf1.org/v1';
 const POLL_MS = 4_000;
+const FETCH_TIMEOUT_MS = 8_000;
+
+async function fetchJson<T>(url: string, signal: AbortSignal): Promise<T> {
+  const timeoutId = setTimeout(() => {
+    // AbortController shared with caller will abort; this is belt-and-suspenders
+  }, FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal });
+    clearTimeout(timeoutId);
+    return res.json() as Promise<T>;
+  } catch (e) {
+    clearTimeout(timeoutId);
+    throw e;
+  }
+}
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 function fmtLap(sec: number | null): string {
@@ -69,11 +84,17 @@ function detectSC(msgs: RaceControlMessage[]): LiveRaceState['safetyCarStatus'] 
   return 'NONE';
 }
 
+export interface LiveRaceDataResult {
+  data: LiveRaceState | null;
+  loading: boolean;
+}
+
 export function useLiveRaceData(
   sessionKey: number | null,
   isActive: boolean,
-): LiveRaceState | null {
+): LiveRaceDataResult {
   const [state, setState] = useState<LiveRaceState | null>(null);
+  const [loading, setLoading] = useState(true);
   const prevPositions = useRef<Map<number, number>>(new Map());
   const driversCache = useRef<Map<number, RawDriver>>(new Map());
   const stintCount = useRef<Map<number, number>>(new Map());
@@ -86,10 +107,10 @@ export function useLiveRaceData(
     const ac = new AbortController();
 
     Promise.all([
-      fetch(`${BASE}/drivers?session_key=${sessionKey}`, { signal: ac.signal })
-        .then(r => r.json() as Promise<RawDriver[]>),
-      fetch(`${BASE}/sessions?session_key=${sessionKey}`, { signal: ac.signal })
-        .then(r => r.json() as Promise<Array<{ session_name: string; circuit_short_name?: string; location?: string; country_name?: string }>>),
+      fetchJson<RawDriver[]>(`${BASE}/drivers?session_key=${sessionKey}`, ac.signal),
+      fetchJson<Array<{ session_name: string; circuit_short_name?: string; location?: string; country_name?: string }>>(
+        `${BASE}/sessions?session_key=${sessionKey}`, ac.signal,
+      ),
     ]).then(([drivers, sessions]) => {
       for (const d of drivers) driversCache.current.set(d.driver_number, d);
       if (sessions[0]) {
@@ -117,13 +138,13 @@ export function useLiveRaceData(
 
     try {
       const [posRes, intRes, stintRes, lapRes, carRes, rcRes, wxRes] = await Promise.allSettled([
-        fetch(`${BASE}/position?session_key=${sessionKey}&date>${since10s}`, { signal: ac.signal }).then(r => r.json() as Promise<RawPos[]>),
-        fetch(`${BASE}/intervals?session_key=${sessionKey}&date>${since10s}`, { signal: ac.signal }).then(r => r.json() as Promise<RawInterval[]>),
-        fetch(`${BASE}/stints?session_key=${sessionKey}`, { signal: ac.signal }).then(r => r.json() as Promise<RawStint[]>),
-        fetch(`${BASE}/laps?session_key=${sessionKey}`, { signal: ac.signal }).then(r => r.json() as Promise<RawLap[]>),
-        fetch(`${BASE}/car_data?session_key=${sessionKey}&date>${since10s}&fields=driver_number,drs,speed,date`, { signal: ac.signal }).then(r => r.json() as Promise<RawCarData[]>),
-        fetch(`${BASE}/race_control?session_key=${sessionKey}&date>${since1h}`, { signal: ac.signal }).then(r => r.json() as Promise<RawRC[]>),
-        fetch(`${BASE}/weather?session_key=${sessionKey}&date>${since2m}`, { signal: ac.signal }).then(r => r.json() as Promise<RawWeather[]>),
+        fetchJson<RawPos[]>(`${BASE}/position?session_key=${sessionKey}&date>${since10s}`, ac.signal),
+        fetchJson<RawInterval[]>(`${BASE}/intervals?session_key=${sessionKey}&date>${since10s}`, ac.signal),
+        fetchJson<RawStint[]>(`${BASE}/stints?session_key=${sessionKey}`, ac.signal),
+        fetchJson<RawLap[]>(`${BASE}/laps?session_key=${sessionKey}`, ac.signal),
+        fetchJson<RawCarData[]>(`${BASE}/car_data?session_key=${sessionKey}&date>${since10s}&fields=driver_number,drs,speed,date`, ac.signal),
+        fetchJson<RawRC[]>(`${BASE}/race_control?session_key=${sessionKey}&date>${since1h}`, ac.signal),
+        fetchJson<RawWeather[]>(`${BASE}/weather?session_key=${sessionKey}&date>${since2m}`, ac.signal),
       ]);
 
       const positions  = posRes.status === 'fulfilled'   ? posRes.value   : [];
@@ -292,12 +313,20 @@ export function useLiveRaceData(
       });
     } catch (e: unknown) {
       if (e instanceof Error && e.name === 'AbortError') return;
-      setState(prev => prev ? { ...prev, isStale: true } : null);
+      // Mark stale if we have data; otherwise leave loading=false so UI can show NoSession
+      setState(prev => prev ? { ...prev, isStale: true } : prev);
+    } finally {
+      setLoading(false);
     }
   }, [sessionKey, isActive]);
 
   useEffect(() => {
-    if (!sessionKey || !isActive) { setState(null); return; }
+    if (!sessionKey || !isActive) {
+      setState(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     fetch4s();
     const id = setInterval(fetch4s, POLL_MS);
     return () => {
@@ -306,5 +335,5 @@ export function useLiveRaceData(
     };
   }, [sessionKey, isActive, fetch4s]);
 
-  return state;
+  return { data: state, loading };
 }

@@ -29,7 +29,7 @@ export default function App() {
     loading, errors, currentRound, totalRounds,
   } = useF1Data();
 
-  const { session: liveSession, phase: livePhase, isLive } = useLiveSession();
+  const { session: liveSession, phase: livePhase, isLive, checking: liveChecking } = useLiveSession();
 
   useEffect(() => {
     if (introDone) {
@@ -98,6 +98,7 @@ export default function App() {
                 sessionKey={liveSession?.session_key ?? null}
                 phase={livePhase}
                 nextRace={nextRace}
+                checking={liveChecking}
               />
             </div>
           )}
