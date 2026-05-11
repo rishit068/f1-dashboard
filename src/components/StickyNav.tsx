@@ -1,0 +1,112 @@
+import { useEffect, useState } from 'react';
+import { formatIST } from '../utils';
+
+interface Props {
+  isLive: boolean;
+  onLiveClick: () => void;
+}
+
+export default function StickyNav({ isLive, onLiveClick }: Props) {
+  const [clock, setClock] = useState('');
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const tick = () => setClock(formatIST(new Date()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
+  return (
+    <>
+      <style>{`
+        @keyframes livePulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.2; }
+        }
+        .live-dot { animation: livePulse 1.2s ease-in-out infinite; }
+        .nav-link {
+          color: rgba(255,255,255,0.7);
+          text-decoration: none;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 1.8px;
+          transition: color 0.2s;
+        }
+        .nav-link:hover { color: #e8002d; }
+      `}</style>
+
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 500,
+        height: 52,
+        background: scrolled ? 'rgba(21,21,30,0.96)' : '#15151e',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: '1px solid rgba(232,0,45,0.25)',
+        display: 'flex', alignItems: 'center',
+        padding: '0 32px',
+        transition: 'background 0.3s',
+      }}>
+        {/* F1 Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <div style={{
+            background: '#e8002d',
+            color: '#fff',
+            fontWeight: 900,
+            fontSize: 18,
+            padding: '3px 14px',
+            letterSpacing: 1,
+            fontFamily: "'Titillium Web', sans-serif",
+            clipPath: 'polygon(6% 0, 100% 0, 94% 100%, 0% 100%)',
+          }}>F1</div>
+        </div>
+
+        {/* Nav links */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 32 }}>
+          {/* LIVE button — always first */}
+          <button
+            onClick={onLiveClick}
+            style={{
+              background: 'none', border: 'none', padding: 0,
+              fontFamily: "'Titillium Web', sans-serif",
+              fontSize: 11, fontWeight: 700, letterSpacing: 1.8,
+              cursor: isLive ? 'pointer' : 'default',
+              color: isLive ? '#ffffff' : '#555555',
+              display: 'flex', alignItems: 'center', gap: 5,
+              transition: 'color 0.2s',
+            }}
+            aria-label="Live Race"
+          >
+            {isLive && (
+              <span className="live-dot" style={{ color: '#e8002d', fontSize: 10 }}>●</span>
+            )}
+            LIVE
+          </button>
+
+          {[
+            { label: 'DRIVERS',      href: '#drivers' },
+            { label: 'CONSTRUCTORS', href: '#constructors' },
+            { label: 'TEAMS',        href: '#constructors' },
+            { label: 'CALENDAR',     href: '#calendar' },
+          ].map(({ label, href }) => (
+            <a key={label} href={href} className="nav-link">{label}</a>
+          ))}
+        </div>
+
+        {/* IST Clock */}
+        <div style={{
+          fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)',
+          letterSpacing: 1.2, fontVariantNumeric: 'tabular-nums',
+          flexShrink: 0,
+        }}>
+          {clock}
+        </div>
+      </nav>
+    </>
+  );
+}
