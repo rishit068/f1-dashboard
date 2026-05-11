@@ -1,5 +1,6 @@
 import type { DriverStanding } from '../types';
 import { getTeamColor } from '../utils';
+import { useIsMobile } from '../hooks/useBreakpoint';
 
 interface Props {
   driverStandings: DriverStanding[];
@@ -23,36 +24,30 @@ const NEWS_STORIES = [
 ];
 
 export default function PaddockIntel({ driverStandings, loading, round }: Props) {
+  const isMobile = useIsMobile();
   const leader = driverStandings[0];
   const teamColor = leader ? getTeamColor(leader.Constructors[0]?.constructorId ?? '') : '#888';
 
   return (
     <div style={{ flex: '1 1 0', minWidth: 0 }}>
-      <h3 className="mixed-heading" style={{ fontSize: 22, marginBottom: 4 }}>
+      <h3 className="mixed-heading" style={{ fontSize: isMobile ? 18 : 22, marginBottom: 4 }}>
         Paddock <span className="serif-red">Intel</span>
       </h3>
-      <div className="label" style={{ marginBottom: 20 }}>
+      <div className="label" style={{ marginBottom: isMobile ? 14 : 20 }}>
         LAST RACE · LAST STANDING
       </div>
 
       {/* Points leader card */}
       {loading ? (
-        <div className="skeleton-light" style={{ height: 80, borderRadius: 8, marginBottom: 20 }} />
+        <div className="skeleton-light" style={{ height: 80, borderRadius: 8, marginBottom: 16 }} />
       ) : leader ? (
         <div style={{
-          background: '#15151e',
-          borderRadius: 8,
-          padding: '16px 20px',
-          marginBottom: 20,
-          position: 'relative',
-          overflow: 'hidden',
+          background: '#15151e', borderRadius: 8,
+          padding: isMobile ? '14px 16px' : '16px 20px',
+          marginBottom: isMobile ? 16 : 20,
+          position: 'relative', overflow: 'hidden',
         }}>
-          {/* Team color top accent */}
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 3,
-            background: teamColor,
-          }} />
-
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: teamColor }} />
           <div style={{
             display: 'inline-block',
             background: 'rgba(232,0,45,0.2)', border: '1px solid rgba(232,0,45,0.4)',
@@ -62,20 +57,16 @@ export default function PaddockIntel({ driverStandings, loading, round }: Props)
           }}>
             FASTEST BY {round} ROUNDS
           </div>
-
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
+              <div style={{ fontSize: isMobile ? 14 : 16, fontWeight: 800, color: '#fff' }}>
                 {leader.Driver.givenName} {leader.Driver.familyName}
               </div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
                 {leader.Constructors[0]?.name}
               </div>
             </div>
-            <div style={{
-              fontSize: 32, fontWeight: 900, color: '#fff',
-              fontVariantNumeric: 'tabular-nums', lineHeight: 1,
-            }}>
+            <div style={{ fontSize: isMobile ? 26 : 32, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
               {leader.points}
               <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginLeft: 4 }}>PTS</span>
             </div>
@@ -87,32 +78,20 @@ export default function PaddockIntel({ driverStandings, loading, round }: Props)
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {NEWS_STORIES.map((story, idx) => (
           <div key={idx}>
-            {idx > 0 && <div style={{ height: 1, background: '#f0f0ea', margin: '14px 0' }} />}
+            {idx > 0 && <div style={{ height: 1, background: '#f0f0ea', margin: isMobile ? '12px 0' : '14px 0' }} />}
             <div style={{ padding: '4px 0' }}>
-              {/* Tag */}
               <div style={{
                 display: 'inline-block',
-                background: story.tagColor,
-                color: '#fff',
+                background: story.tagColor, color: '#fff',
                 fontSize: 8, fontWeight: 700, letterSpacing: 1.8,
-                padding: '3px 10px', borderRadius: 3,
-                marginBottom: 8,
+                padding: '3px 10px', borderRadius: 3, marginBottom: 8,
               }}>
                 {story.tag}
               </div>
-
-              {/* Headline */}
-              <div style={{
-                fontSize: 13, fontWeight: 700, color: '#15151e',
-                lineHeight: 1.4, marginBottom: 6,
-              }}>
+              <div style={{ fontSize: isMobile ? 13 : 13, fontWeight: 700, color: '#15151e', lineHeight: 1.4, marginBottom: 6 }}>
                 {story.headline}
               </div>
-
-              {/* Body */}
-              <div style={{
-                fontSize: 12, color: '#767676', lineHeight: 1.6,
-              }}>
+              <div style={{ fontSize: isMobile ? 12 : 12, color: '#767676', lineHeight: 1.6 }}>
                 {story.body}
               </div>
             </div>

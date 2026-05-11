@@ -15,6 +15,33 @@ export const TEAM_COLORS: Record<string, string> = {
   visa_cash_app_rb: '#6692ff',
 };
 
+// Name-based lookup for Ergast constructor names → team color
+export const TEAM_NAME_COLORS: Record<string, string> = {
+  'Mercedes':            '#27f4d2',
+  'Ferrari':             '#e8002d',
+  'McLaren':             '#ff8000',
+  'Red Bull':            '#3671c6',
+  'Aston Martin':        '#229971',
+  'Alpine F1 Team':      '#ff87bc',
+  'Alpine':              '#ff87bc',
+  'Williams':            '#64c4ff',
+  'Sauber':              '#52e252',
+  'Kick Sauber':         '#52e252',
+  'Haas F1 Team':        '#b6babd',
+  'Haas':                '#b6babd',
+  'RB F1 Team':          '#6692ff',
+  'RB':                  '#6692ff',
+  'AlphaTauri':          '#6692ff',
+  'Racing Bulls':        '#6692ff',
+  'Toro Rosso':          '#6692ff',
+  'Force India':         '#ff87bc',
+  'Renault':             '#ff87bc',
+};
+
+export function getTeamColorByName(teamName: string): string {
+  return TEAM_NAME_COLORS[teamName] ?? '#888888';
+}
+
 export const COUNTRY_FLAGS: Record<string, string> = {
   Bahrain: '🇧🇭', Saudi: '🇸🇦', Australia: '🇦🇺', Japan: '🇯🇵',
   China: '🇨🇳', Miami: '🇺🇸', 'United States': '🇺🇸', 'Emilia Romagna': '🇮🇹',
@@ -41,7 +68,7 @@ export const NAT_FLAGS: Record<string, string> = {
   Canadian: '🇨🇦', Thai: '🇹🇭', Japanese: '🇯🇵', French: '🇫🇷',
   American: '🇺🇸', Danish: '🇩🇰', Chinese: '🇨🇳', Brazilian: '🇧🇷',
   Italian: '🇮🇹', Austrian: '🇦🇹', Belgian: '🇧🇪', Argentine: '🇦🇷',
-  New: '🇳🇿', Swiss: '🇨🇭',
+  New: '🇳🇿', Swiss: '🇨🇭', Icelandic: '🇮🇸', Polish: '🇵🇱',
 };
 
 export function getTeamColor(constructorId: string): string {

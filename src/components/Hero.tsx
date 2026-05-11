@@ -1,6 +1,7 @@
 import type { Race } from '../types';
 import { useCountdown } from '../hooks/useCountdown';
-import { formatDateRange, getRaceName, COUNTRY_CODES } from '../utils';
+import { useIsMobile } from '../hooks/useBreakpoint';
+import { formatDateRange, getRaceName, COUNTRY_CODES, padTwo } from '../utils';
 import FlipDigit from './FlipDigit';
 
 interface Props {
@@ -15,25 +16,27 @@ const STAT_BOX_STYLE: React.CSSProperties = {
   border: '1px solid rgba(255,255,255,0.08)',
   borderRadius: 6,
   padding: '10px 16px',
-  minWidth: 130,
+  minWidth: 140,
+  flexShrink: 0,
 };
 
-function SkeletonHero() {
+function SkeletonHero({ isMobile }: { isMobile: boolean }) {
+  const navH = isMobile ? 48 : 52;
   return (
-    <section style={{ background: '#15151e', paddingTop: 52, minHeight: '100vh' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '64px 32px', display: 'flex', gap: 80 }}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="skeleton" style={{ height: 24, width: 180 }} />
-          <div className="skeleton" style={{ height: 80, width: 320 }} />
-          <div className="skeleton" style={{ height: 20, width: 260 }} />
-          <div style={{ display: 'flex', gap: 12 }}>
-            {[1,2,3].map(i=><div key={i} className="skeleton" style={{ height: 60, width: 130 }} />)}
+    <section style={{ background: '#15151e', paddingTop: navH, minHeight: isMobile ? '92vh' : '100vh' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '32px 16px' : '64px 32px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 28 : 80 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="skeleton" style={{ height: 22, width: 160 }} />
+          <div className="skeleton" style={{ height: isMobile ? 56 : 80, width: '75%' }} />
+          <div className="skeleton" style={{ height: 16, width: '60%' }} />
+          <div style={{ display: 'flex', gap: 10, overflowX: 'auto' }}>
+            {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 56, minWidth: 140 }} />)}
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center' }}>
-          <div className="skeleton" style={{ height: 18, width: 120 }} />
-          <div style={{ display: 'flex', gap: 12 }}>
-            {[1,2,3,4].map(i=><div key={i} className="skeleton" style={{ height: 90, width: 80 }} />)}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
+          <div className="skeleton" style={{ height: 16, width: 110 }} />
+          <div style={{ display: 'flex', gap: isMobile ? 8 : 12 }}>
+            {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: isMobile ? 72 : 88, width: isMobile ? 68 : 80 }} />)}
           </div>
         </div>
       </div>
@@ -42,58 +45,81 @@ function SkeletonHero() {
 }
 
 export default function Hero({ race, loading, total }: Props) {
+  const isMobile = useIsMobile();
   const raceDateTime = race ? `${race.date}T${race.time ?? '12:00:00Z'}` : null;
   const countdown = useCountdown(raceDateTime);
 
-  if (loading) return <SkeletonHero />;
+  if (loading) return <SkeletonHero isMobile={isMobile} />;
   if (!race) return null;
 
   const { city, gp } = getRaceName(race);
   const countryCode = COUNTRY_CODES[race.Circuit.Location.country] ?? race.Circuit.Location.country.slice(0,3).toUpperCase();
   const dateRange = formatDateRange(race);
-  const laps = '57';   // static default; real data not in Ergast
-  const dist = '308.326 km';
-
   const qualDate = race.Qualifying?.date ?? race.date;
 
+  const nameFontSize = isMobile ? 'clamp(36px, 11vw, 48px)' : 'clamp(52px, 7vw, 80px)';
+  const navH = isMobile ? 48 : 52;
+
+  const countdownRow = (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 9, color: '#e8002d' }}>●</span>
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2.5, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase' }}>
+          Lights Out In
+        </span>
+      </div>
+      <div style={{ display: 'flex', gap: isMobile ? 8 : 12, width: isMobile ? '100%' : 'auto' }}>
+        {[
+          { v: countdown.days,  l: 'Days' },
+          { v: countdown.hours, l: 'Hours' },
+          { v: countdown.mins,  l: 'Mins' },
+          { v: countdown.secs,  l: 'Secs' },
+        ].map(({ v, l }) =>
+          isMobile ? (
+            <MiniFlip key={l} value={v} label={l} />
+          ) : (
+            <FlipDigit key={l} value={v} label={l} />
+          )
+        )}
+      </div>
+      <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: 9, letterSpacing: 1.5 }}>
+        ALL TIMES IN IST (UTC+5:30)
+      </div>
+    </div>
+  );
+
   return (
-    <section id="hero" style={{
+    <section id="next" style={{
       background: '#15151e',
-      paddingTop: 52,
-      minHeight: '100vh',
+      paddingTop: navH,
+      minHeight: isMobile ? 'auto' : '100vh',
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Diagonal red accent — top-right */}
-      <div style={{
-        position: 'absolute', top: 0, right: 0,
-        width: 220, height: 220,
-        background: 'linear-gradient(135deg, transparent 60%, rgba(232,0,45,0.12) 100%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', top: 0, right: 0,
-        width: 3, height: 180,
-        background: 'linear-gradient(to bottom, #e8002d, transparent)',
-        transform: 'rotate(30deg) translateX(-60px)',
-        pointerEvents: 'none',
-      }} />
+      {/* Diagonal accent — desktop only */}
+      {!isMobile && (
+        <>
+          <div style={{ position: 'absolute', top: 0, right: 0, width: 220, height: 220, background: 'linear-gradient(135deg, transparent 60%, rgba(232,0,45,0.12) 100%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 0, right: 0, width: 3, height: 180, background: 'linear-gradient(to bottom, #e8002d, transparent)', transform: 'rotate(30deg) translateX(-60px)', pointerEvents: 'none' }} />
+        </>
+      )}
 
       <div style={{
         maxWidth: 1200, margin: '0 auto',
-        padding: '64px 32px 48px',
+        padding: isMobile ? '28px 16px 32px' : '64px 32px 48px',
         display: 'flex',
-        gap: 80,
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? 28 : 80,
         flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        justifyContent: isMobile ? 'flex-start' : 'space-between',
+        alignItems: isMobile ? 'stretch' : 'flex-start',
       }}>
 
-        {/* ── Left column ─────────────────────────────────────── */}
-        <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* ── Left / Top column ─────────────────────────────────────────────── */}
+        <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: isMobile ? 14 : 20 }}>
 
-          {/* ROUND badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Badge row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               background: 'rgba(232,0,45,0.15)',
               border: '1px solid rgba(232,0,45,0.3)',
@@ -101,113 +127,95 @@ export default function Hero({ race, loading, total }: Props) {
               display: 'flex', alignItems: 'center', gap: 6,
             }}>
               <span style={{ fontSize: 8, color: '#e8002d' }}>●</span>
-              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: '#e8002d' }}>
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#e8002d' }}>
                 ROUND {race.round} · UP NEXT
               </span>
             </div>
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: '#555' }}>
-              {countryCode}
-            </span>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#555' }}>{countryCode}</span>
           </div>
 
-          {/* Race name — massive */}
+          {/* Race name */}
           <div>
-            <div style={{
-              fontSize: 'clamp(52px, 7vw, 80px)',
-              fontWeight: 900,
-              color: '#ffffff',
-              lineHeight: 1,
-              letterSpacing: -2,
-            }}>
+            <div style={{ fontSize: nameFontSize, fontWeight: 900, color: '#ffffff', lineHeight: 1, letterSpacing: -1 }}>
               {city}
             </div>
-            <div style={{
-              fontSize: 'clamp(52px, 7vw, 80px)',
-              fontFamily: 'Georgia, serif',
-              fontStyle: 'italic',
-              color: '#e8002d',
-              lineHeight: 1.05,
-              letterSpacing: -1,
-            }}>
+            <div style={{ fontSize: nameFontSize, fontFamily: 'Georgia, serif', fontStyle: 'italic', color: '#e8002d', lineHeight: 1.05, letterSpacing: -0.5 }}>
               {gp}
             </div>
           </div>
 
-          {/* Circuit info */}
+          {/* Circuit */}
           <div>
-            <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: 600 }}>
+            <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: isMobile ? 13 : 14, fontWeight: 600 }}>
               {race.Circuit.circuitName}
             </div>
-            <div style={{ color: '#888', fontSize: 12, marginTop: 2 }}>
+            <div style={{ color: '#888', fontSize: 11, marginTop: 2 }}>
               {race.Circuit.Location.locality} · {race.Circuit.Location.country}
             </div>
           </div>
 
-          {/* Round / laps / dist */}
-          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, letterSpacing: 0.5 }}>
-            Round {race.round} of {total} · {laps} laps · {dist}
+          {/* Round / laps info */}
+          <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: isMobile ? 10 : 11, letterSpacing: 0.3 }}>
+            Round {race.round} of {total} · 57 laps · 308.326 km
           </div>
 
-          {/* Stat boxes */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 8 }}>
+          {/* Stat boxes — horizontal scroll on mobile */}
+          <div style={{
+            display: 'flex', gap: 10,
+            overflowX: 'auto', paddingBottom: 4,
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'],
+            marginRight: isMobile ? -16 : 0,
+            paddingRight: isMobile ? 16 : 0,
+          } as React.CSSProperties}>
             <div style={STAT_BOX_STYLE}>
               <div className="label label-white" style={{ marginBottom: 6 }}>Lap Record</div>
-              <div style={{ color: '#fff', fontSize: 18, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
-                1:29.708
-              </div>
+              <div style={{ color: '#fff', fontSize: 16, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>1:29.708</div>
             </div>
             <div style={STAT_BOX_STYLE}>
               <div className="label label-white" style={{ marginBottom: 6 }}>Qualifying</div>
-              <div style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>
-                {qualDate ? new Date(qualDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '–'}
+              <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>
+                {new Date(qualDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
               </div>
             </div>
             <div style={STAT_BOX_STYLE}>
               <div className="label label-white" style={{ marginBottom: 6 }}>Race Date</div>
-              <div style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>
-                {dateRange}
-              </div>
+              <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{dateRange}</div>
             </div>
           </div>
         </div>
 
-        {/* ── Right column — countdown ──────────────────────── */}
+        {/* ── Right / Bottom — countdown ─────────────────────────────────────── */}
         <div style={{
-          flex: '0 0 auto',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
-          paddingTop: 24,
+          flex: isMobile ? '0 0 auto' : '0 0 auto',
+          paddingTop: isMobile ? 0 : 24,
+          width: isMobile ? '100%' : 'auto',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 9, color: '#e8002d' }}>●</span>
-            <span style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: 2.5,
-              color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase',
-            }}>
-              Lights Out In
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', gap: 12 }}>
-            <FlipDigit value={countdown.days}  label="Days" />
-            <FlipDigit value={countdown.hours} label="Hours" />
-            <FlipDigit value={countdown.mins}  label="Mins" />
-            <FlipDigit value={countdown.secs}  label="Secs" />
-          </div>
-
-          {/* Separator line */}
-          <div style={{
-            width: '100%', height: 1,
-            background: 'linear-gradient(to right, transparent, rgba(232,0,45,0.4), transparent)',
-            marginTop: 8,
-          }} />
-
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, letterSpacing: 2 }}>
-              ALL TIMES IN IST (UTC+5:30)
-            </div>
-          </div>
+          {countdownRow}
         </div>
       </div>
     </section>
+  );
+}
+
+/* Compact flip tile for mobile */
+function MiniFlip({ value, label }: { value: number; label: string }) {
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div style={{
+        background: '#1e1e2a',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 6, width: '100%',
+        padding: '10px 4px', textAlign: 'center',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+      }}>
+        <span style={{ fontSize: 32, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+          {padTwo(value)}
+        </span>
+      </div>
+      <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: 2, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>
+        {label}
+      </span>
+    </div>
   );
 }

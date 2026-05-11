@@ -165,3 +165,52 @@ export interface LiveRaceState {
 }
 
 export type LivePhase = 'LIVE' | 'COMPLETE' | 'NONE';
+
+// ─── Race Results Types ────────────────────────────────────────────────────────
+
+export type FinishPosition = number | 'DNF' | 'DSQ' | 'DNS';
+
+export interface RaceResult {
+  position: FinishPosition;
+  driverNumber: string;
+  fullName: string;
+  givenName: string;
+  familyName: string;
+  nationality: string;
+  team: string;
+  teamColor: string;
+  grid: number;
+  laps: number;
+  status: string;
+  raceTime: string;
+  gap: string;
+  points: number;
+  fastestLap: boolean;
+  fastestLapTime: string | null;
+  fastestLapRank: number | null;
+}
+
+export interface RaceResultData {
+  raceName: string;
+  circuit: string;
+  locality: string;
+  country: string;
+  date: string;
+  round: number;
+  season: string;
+  totalLaps: number;
+  results: RaceResult[];
+  winnerTime: string;
+  fastestLapDriver: string;
+  fastestLapTime: string;
+}
+
+export interface SelectedRace {
+  season: string;
+  round: string;
+  raceName: string;
+  circuitName: string;
+  locality: string;
+  country: string;
+  date: string;
+}
