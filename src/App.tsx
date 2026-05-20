@@ -124,11 +124,11 @@ export default function App() {
                 /* ── Mobile: stacked 1-column ── */
                 <div style={{ padding: '28px 16px 32px' }}>
                   <div id="drivers">
-                    <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} />
+                    <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} allRaces={allRaces} />
                   </div>
                   <div style={{ height: 1, background: '#e8e8e0', margin: '28px 0' }} />
                   <div id="constructors">
-                    <ConstructorsCup standings={constructorStandings} loading={loading} round={currentRound} />
+                    <ConstructorsCup standings={constructorStandings} driverStandings={driverStandings} loading={loading} round={currentRound} />
                   </div>
                   <div style={{ height: 1, background: '#e8e8e0', margin: '28px 0' }} />
                   <PaddockIntel driverStandings={driverStandings} loading={loading} round={currentRound} />
@@ -143,10 +143,10 @@ export default function App() {
                   gap: 0,
                 }}>
                   <div id="drivers" style={{ paddingRight: 40 }}>
-                    <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} />
+                    <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} allRaces={allRaces} />
                   </div>
                   <div style={{ borderLeft: '1px solid #e8e8e0', borderRight: '1px solid #e8e8e0', paddingLeft: 40, paddingRight: 40 }}>
-                    <ConstructorsCup standings={constructorStandings} loading={loading} round={currentRound} />
+                    <ConstructorsCup standings={constructorStandings} driverStandings={driverStandings} loading={loading} round={currentRound} />
                   </div>
                   <div id="constructors" style={{ paddingLeft: 40 }}>
                     <PaddockIntel driverStandings={driverStandings} loading={loading} round={currentRound} />

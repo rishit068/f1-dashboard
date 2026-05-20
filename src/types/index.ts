@@ -24,6 +24,7 @@ export interface DriverStanding {
   Driver: {
     driverId: string;
     code: string;
+    permanentNumber?: string;
     givenName: string;
     familyName: string;
     nationality: string;
@@ -203,6 +204,37 @@ export interface RaceResultData {
   winnerTime: string;
   fastestLapDriver: string;
   fastestLapTime: string;
+}
+
+export interface DriverRaceResult {
+  round: number;
+  raceName: string;
+  circuitName: string;
+  locality: string;
+  country: string;
+  date: string;
+  position: number | null;   // null = DNF / DSQ / DNS / NC
+  positionText: string;      // "1", "R", "D", "N", "W", "F"
+  status: string;            // "Finished", "Engine", "+1 Lap" …
+  grid: number;
+  laps: number;
+  points: number;
+  gap: string;               // race time for P1, "+X.XXXs" for others
+  fastestLap: boolean;
+  fastestLapTime: string | null;
+}
+
+export interface DriverSeasonStats {
+  totalPoints: number;
+  wins: number;
+  podiums: number;
+  fastestLaps: number;
+  dnfs: number;
+  completedRaces: number;
+  bestResult: number | null;
+  pointsPerRace: number;
+  avgFinishPosition: number;
+  results: DriverRaceResult[];
 }
 
 export interface SelectedRace {
