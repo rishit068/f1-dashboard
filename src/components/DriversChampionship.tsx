@@ -2,28 +2,25 @@ import { useState } from 'react';
 import type { DriverStanding, Race } from '../types';
 import { getTeamColor, NAT_FLAGS } from '../utils';
 import { useIsMobile } from '../hooks/useBreakpoint';
-import { useDriverSeasonResults } from '../hooks/useDriverSeasonResults';
-import DriverProfileSheet from './DriverProfileSheet';
 
 interface Props {
   standings: DriverStanding[];
   loading: boolean;
   round: number;
   allRaces?: Race[];
+  onSelectDriver: (driver: DriverStanding) => void;
 }
 
 const POS_COLORS: Record<number, string> = { 1: '#FFD700', 2: '#C0C0C0', 3: '#CD7F32' };
 
-export default function DriversChampionship({ standings, loading, round, allRaces = [] }: Props) {
+export default function DriversChampionship({ standings, loading, round, allRaces: _allRaces = [], onSelectDriver }: Props) {
   const isMobile = useIsMobile();
-  const { stats, loading: loadingStats } = useDriverSeasonResults();
-  const [selectedDriver, setSelectedDriver] = useState<DriverStanding | null>(null);
   const [hasExpandedOnce, setHasExpandedOnce] = useState<boolean>(() => {
     try { return localStorage.getItem('f1_expanded_driver') === '1'; } catch { return false; }
   });
 
   function selectDriver(s: DriverStanding) {
-    setSelectedDriver(s);
+    onSelectDriver(s);
     if (!hasExpandedOnce) {
       setHasExpandedOnce(true);
       try { localStorage.setItem('f1_expanded_driver', '1'); } catch { /* ok */ }
@@ -121,16 +118,6 @@ export default function DriversChampionship({ standings, loading, round, allRace
         </div>
       )}
 
-      {/* Driver profile sheet */}
-      {selectedDriver && (
-        <DriverProfileSheet
-          standing={selectedDriver}
-          stats={stats?.get(selectedDriver.Driver.driverId) ?? null}
-          loadingStats={loadingStats}
-          allRaces={allRaces}
-          onClose={() => setSelectedDriver(null)}
-        />
-      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import './index.css';
 import { useF1Data } from './hooks/useF1Data';
 import { useLiveSession } from './hooks/useLiveSession';
 import { useIsMobile } from './hooks/useBreakpoint';
+import { useDriverSeasonResults } from './hooks/useDriverSeasonResults';
 import IntroAnimation from './components/IntroAnimation';
 import StickyNav from './components/StickyNav';
 import BottomTabBar, { type TabId } from './components/BottomTabBar';
@@ -13,7 +14,8 @@ import ConstructorsCup from './components/ConstructorsCup';
 import PaddockIntel from './components/PaddockIntel';
 import LiveSection from './components/live/LiveSection';
 import RaceResultSheet from './components/results/RaceResultSheet';
-import type { SelectedRace } from './types';
+import DriverProfileSheet from './components/DriverProfileSheet';
+import type { SelectedRace, DriverStanding } from './types';
 
 export default function App() {
   const [introDone, setIntroDone] = useState(false);
@@ -21,7 +23,12 @@ export default function App() {
   const [showLive, setShowLive] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('next');
   const [selectedRace, setSelectedRace] = useState<SelectedRace | null>(null);
+  const [selectedDriver, setSelectedDriver] = useState<DriverStanding | null>(null);
   const isMobile = useIsMobile();
+
+  // Fetch driver season stats here so the sheet can be rendered at root level
+  // (avoids iOS Safari overflow:hidden clipping fixed-position children)
+  const { stats: driverStats, loading: loadingDriverStats } = useDriverSeasonResults();
 
   const {
     nextRace, allRaces,
@@ -124,7 +131,7 @@ export default function App() {
                 /* ── Mobile: stacked 1-column ── */
                 <div style={{ padding: '28px 16px 32px' }}>
                   <div id="drivers">
-                    <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} allRaces={allRaces} />
+                    <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} allRaces={allRaces} onSelectDriver={setSelectedDriver} />
                   </div>
                   <div style={{ height: 1, background: '#e8e8e0', margin: '28px 0' }} />
                   <div id="constructors">
@@ -143,7 +150,7 @@ export default function App() {
                   gap: 0,
                 }}>
                   <div id="drivers" style={{ paddingRight: 40 }}>
-                    <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} allRaces={allRaces} />
+                    <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} allRaces={allRaces} onSelectDriver={setSelectedDriver} />
                   </div>
                   <div style={{ borderLeft: '1px solid #e8e8e0', borderRight: '1px solid #e8e8e0', paddingLeft: 40, paddingRight: 40 }}>
                     <ConstructorsCup standings={constructorStandings} driverStandings={driverStandings} loading={loading} round={currentRound} />
@@ -178,6 +185,19 @@ export default function App() {
       {/* ── Race Result Sheet / Modal ── */}
       {selectedRace && (
         <RaceResultSheet race={selectedRace} onClose={() => setSelectedRace(null)} />
+      )}
+
+      {/* ── Driver Profile Sheet ──
+          Rendered here (outside <main overflowX="hidden">) so that position:fixed
+          works correctly on iOS Safari — overflow:hidden on any ancestor breaks fixed. */}
+      {selectedDriver && (
+        <DriverProfileSheet
+          standing={selectedDriver}
+          stats={driverStats?.get(selectedDriver.Driver.driverId) ?? null}
+          loadingStats={loadingDriverStats}
+          allRaces={allRaces}
+          onClose={() => setSelectedDriver(null)}
+        />
       )}
     </>
   );
