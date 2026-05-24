@@ -165,7 +165,7 @@ export default function LivePage({
           fontSize: 10, letterSpacing: 1,
         }}>
           <span style={{ color: '#e8002d', fontWeight: 700 }}>F1</span>
-          {' '}LIVE DASHBOARD · LIVE TIMING PAGE · DATA: OPENF1.ORG
+          {' '}LIVE DASHBOARD · LIVE TIMING PAGE · DATA: LIVETIMING.FORMULA1.COM
         </footer>
       </main>
     </div>

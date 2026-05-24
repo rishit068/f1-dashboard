@@ -227,7 +227,7 @@ export default function App() {
             fontSize: 10, letterSpacing: 1,
           }}>
             <span style={{ color: '#e8002d', fontWeight: 700 }}>F1</span>
-            {' '}LIVE DASHBOARD · BUILT FOR RISHIT · DATA: JOLPI.CA + OPENF1.ORG
+            {' '}LIVE DASHBOARD · BUILT FOR RISHIT · DATA: JOLPI.CA + LIVETIMING.FORMULA1.COM
           </footer>
         </main>
 

@@ -114,7 +114,7 @@ export function useLiveBackend(): LiveBackendResult {
           if (msg.type === 'snapshot' || msg.type === 'state') {
             setPhase(msg.phase);
             setSession(coerceSession(msg.session));
-            setState(msg.state);
+            setState(reviveState(msg.state));
           } else if (msg.type === 'phase') {
             setPhase(msg.phase);
             setSession(coerceSession(msg.session));
@@ -162,6 +162,19 @@ export function useLiveBackend(): LiveBackendResult {
   }, []);
 
   return { connected, checking, phase, session, state, error };
+}
+
+/** JSON can't carry Date instances. Convert ISO strings back to Date objects
+ *  so components like `SessionHeader` can call `.getTime()` on them.       */
+function reviveState(s: LiveRaceState | null): LiveRaceState | null {
+  if (!s) return null;
+  // The backend serialises lastUpdated as an ISO string; React components
+  // expect a real Date instance because the frontend type declares it so.
+  const lu = s.lastUpdated as unknown;
+  return {
+    ...s,
+    lastUpdated: lu instanceof Date ? lu : new Date(lu as string),
+  };
 }
 
 /** Backend `BackendSession` shape → frontend `OpenF1Session` (identical fields). */
