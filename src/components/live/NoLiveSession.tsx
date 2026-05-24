@@ -1,9 +1,11 @@
 import type { Race } from '../../types';
 import { useCountdown } from '../../hooks/useCountdown';
 import { padTwo } from '../../utils';
+import type { LiveSessionDebug } from '../../hooks/useLiveBackend';
 
 interface Props {
   nextRace: Race | null;
+  debug?: LiveSessionDebug;
 }
 
 function nextSessionDateTime(race: Race | null): { label: string; datetime: string } | null {
@@ -35,7 +37,17 @@ function toIST(isoStr: string): string {
   }) + ' IST';
 }
 
-export default function NoLiveSession({ nextRace }: Props) {
+function toISTTime(d: Date | null | undefined): string {
+  if (!d) return '–';
+  try {
+    return d.toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+    }) + ' IST';
+  } catch { return d.toISOString(); }
+}
+
+export default function NoLiveSession({ nextRace, debug }: Props) {
   const nextSession = nextSessionDateTime(nextRace);
   const countdown = useCountdown(nextSession?.datetime ?? null);
 
@@ -132,6 +144,62 @@ export default function NoLiveSession({ nextRace }: Props) {
         <p style={{ color: '#aaa', fontSize: 11, letterSpacing: 0.5 }}>
           This page checks for live sessions every 30 seconds automatically.
         </p>
+
+        {/* ── Backend connection error (when WebSocket can't reach the server) ── */}
+        {debug?.apiError && (
+          <div style={{
+            marginTop: 18, padding: '14px 18px',
+            background: 'rgba(232,0,45,0.06)',
+            border: '1px solid rgba(232,0,45,0.25)',
+            borderLeft: '3px solid #e8002d',
+            borderRadius: 8, textAlign: 'left',
+            fontSize: 12, color: '#444', lineHeight: 1.55,
+          }}>
+            <div style={{
+              fontSize: 10, fontWeight: 800, letterSpacing: 2,
+              color: '#e8002d', marginBottom: 6,
+            }}>
+              ⚠ LIVE BACKEND UNREACHABLE
+            </div>
+            <div style={{ color: '#555' }}>
+              {debug.apiError}
+            </div>
+            <div style={{ color: '#888', marginTop: 8, fontSize: 11 }}>
+              The dashboard couldn't connect to the live data server. Check that
+              the backend is running (locally: <code>npm run dev</code> in <code>server/</code>),
+              or that the deployed Fly.io app is reachable.
+            </div>
+          </div>
+        )}
+
+        {/* ── Diagnostic info (remove once live-detection is verified stable) ── */}
+        {debug && debug.lastCheck && (
+          <details open style={{
+            marginTop: 24, textAlign: 'left',
+            background: 'rgba(0,0,0,0.04)', borderRadius: 8,
+            padding: '10px 14px', fontSize: 10, color: '#888',
+            fontFamily: 'monospace',
+          }}>
+            <summary style={{ cursor: 'pointer', color: '#666', fontWeight: 700, letterSpacing: 1 }}>
+              DIAGNOSTICS
+            </summary>
+            <div style={{ marginTop: 8, lineHeight: 1.7 }}>
+              <div>Last check: {toISTTime(debug.lastCheck)}</div>
+              <div>Current time: {toISTTime(new Date())}</div>
+              <div>OpenF1 returned: {debug.lastSessionName ?? 'no session'} ({debug.lastSessionType ?? '–'})</div>
+              <div>Session start: {toISTTime(debug.sessionStart)}</div>
+              <div>Session end: {toISTTime(debug.sessionEnd)}</div>
+              <div>Valid F1 session type: {debug.isValidType ? 'yes' : 'no'}</div>
+              <div>Within session window: {debug.isWithinWindow ? 'yes' : 'no'}</div>
+              <div>HTTP status: {debug.apiStatus ?? '–'}</div>
+              {debug.apiError && (
+                <div style={{ color: '#e8002d', marginTop: 4 }}>
+                  API error: {debug.apiError}
+                </div>
+              )}
+            </div>
+          </details>
+        )}
       </div>
     </section>
   );

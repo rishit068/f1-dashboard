@@ -1,6 +1,6 @@
-import { Component, useState, useEffect, type ReactNode } from 'react';
-import type { Race, LivePhase } from '../../types';
-import { useLiveRaceData } from '../../hooks/useLiveRaceData';
+import { Component, type ReactNode } from 'react';
+import type { Race, LivePhase, OpenF1Session, LiveRaceState } from '../../types';
+import type { LiveSessionDebug } from '../../hooks/useLiveBackend';
 import SessionHeader from './SessionHeader';
 import AlertBanner from './AlertBanner';
 import RaceTower from './RaceTower';
@@ -30,7 +30,7 @@ class LiveErrorBoundary extends Component<{ children: ReactNode }, EBState> {
   }
 }
 
-// ── Checking state (first load, < 8 seconds) ──────────────────────────────────
+// ── Checking state (first connect to backend) ─────────────────────────────────
 function CheckingState() {
   return (
     <div style={{ background: '#15151e', padding: '80px 32px', textAlign: 'center' }}>
@@ -43,99 +43,51 @@ function CheckingState() {
         marginBottom: 16,
       }} />
       <div style={{ color: '#555', fontSize: 12, letterSpacing: 1.5 }}>
-        CHECKING FOR LIVE SESSION…
+        CONNECTING TO LIVE BACKEND…
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
 
-// ── Inner data consumer ────────────────────────────────────────────────────────
-interface InnerProps {
-  sessionKey: number;
-  phase: LivePhase;
-  nextRace: Race | null;
-}
-
-function LiveDataView({ sessionKey, phase, nextRace }: InnerProps) {
-  const { data, loading } = useLiveRaceData(sessionKey, phase === 'LIVE' || phase === 'COMPLETE');
-
-  // Hard 8-second timeout — if still loading, bail to NoLiveSession
-  const [timedOut, setTimedOut] = useState(false);
-  useEffect(() => {
-    if (!loading) return;
-    const id = setTimeout(() => setTimedOut(true), 8_000);
-    return () => clearTimeout(id);
-  }, [loading]);
-
-  // State 3 — timed out or definitely no data
-  if (timedOut && !data) {
-    return <NoLiveSession nextRace={nextRace} />;
-  }
-
-  // State 1 — loading spinner (only while first fetch is in flight)
-  if (loading && !data) {
-    return (
-      <div style={{ background: '#15151e', padding: '80px 32px', textAlign: 'center' }}>
-        <div style={{
-          display: 'inline-block',
-          width: 36, height: 36, borderRadius: '50%',
-          border: '3px solid rgba(232,0,45,0.25)',
-          borderTopColor: '#e8002d',
-          animation: 'spin 0.9s linear infinite',
-          marginBottom: 16,
-        }} />
-        <div style={{ color: '#555', fontSize: 12, letterSpacing: 1.5 }}>
-          LOADING LIVE DATA…
-        </div>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-
-  // State 3 — load finished but empty (stale session key, no actual race data)
-  if (!data || data.drivers.length === 0) {
-    return <NoLiveSession nextRace={nextRace} />;
-  }
-
-  // State 2 — live data confirmed
-  return (
-    <>
-      <SessionHeader data={data} phase={phase} />
-      <AlertBanner status={data.safetyCarStatus} />
-      <RaceTower data={data} />
-
-      <div style={{ background: '#f5f5f0', padding: '40px 32px 56px' }}>
-        <div style={{
-          maxWidth: 1200, margin: '0 auto',
-          display: 'flex', gap: 40, flexWrap: 'wrap',
-        }}>
-          <RaceControlFeed messages={data.raceControl} />
-          <FastestLapsBoard board={data.fastestLapsBoard} currentLap={data.currentLap} />
-        </div>
-      </div>
-    </>
-  );
-}
-
-// ── Public component ───────────────────────────────────────────────────────────
 interface Props {
-  sessionKey: number | null;
+  /** Most recent session metadata reported by the backend. */
+  session: OpenF1Session | null;
+  /** Backend-derived phase: LIVE / COMPLETE / NONE. */
   phase: LivePhase;
+  /** Aggregated live state, or null if not yet received. */
+  data: LiveRaceState | null;
+  /** Next race (for the no-session countdown card). */
   nextRace: Race | null;
+  /** True until the WebSocket has connected for the first time. */
   checking: boolean;
+  /** Diagnostic info for the no-session panel. */
+  debug: LiveSessionDebug;
 }
 
-export default function LiveSection({ sessionKey, phase, nextRace, checking }: Props) {
+export default function LiveSection({ session: _session, phase, data, nextRace, checking, debug }: Props) {
   return (
     <section id="live" style={{ paddingTop: 52 }}>
       <LiveErrorBoundary>
         {checking ? (
           <CheckingState />
-        ) : (phase === 'NONE' || sessionKey == null) ? (
-          <NoLiveSession nextRace={nextRace} />
+        ) : phase === 'NONE' || !data || data.drivers.length === 0 ? (
+          <NoLiveSession nextRace={nextRace} debug={debug} />
         ) : (
-          <LiveDataView sessionKey={sessionKey} phase={phase} nextRace={nextRace} />
+          <>
+            <SessionHeader data={data} phase={phase} />
+            <AlertBanner status={data.safetyCarStatus} />
+            <RaceTower data={data} />
+            <div style={{ background: '#f5f5f0', padding: '40px 32px 56px' }}>
+              <div style={{
+                maxWidth: 1200, margin: '0 auto',
+                display: 'flex', gap: 40, flexWrap: 'wrap',
+              }}>
+                <RaceControlFeed messages={data.raceControl} />
+                <FastestLapsBoard board={data.fastestLapsBoard} currentLap={data.currentLap} />
+              </div>
+            </div>
+          </>
         )}
       </LiveErrorBoundary>
     </section>

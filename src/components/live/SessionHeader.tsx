@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { LiveRaceState, LivePhase } from '../../types';
 import { useIsMobile } from '../../hooks/useBreakpoint';
+import {
+  getSessionDisplayName, getSessionColors, getSessionIcon, getLapDisplay,
+} from '../../utils/sessionHelpers';
 
 interface Props {
   data: LiveRaceState;
@@ -43,26 +46,35 @@ function SCBadge({ status }: { status: LiveRaceState['safetyCarStatus'] }) {
 export default function SessionHeader({ data, phase }: Props) {
   const isMobile = useIsMobile();
   const secs = SecondsSince(data.lastUpdated);
-  const pct = data.session.totalLaps > 0 ? Math.min(100, (data.currentLap / data.session.totalLaps) * 100) : 0;
   const wx = data.weather;
+
+  // Session-aware labelling: practice = green, qualifying = cyan, sprint = amber, race = red
+  const sessionLike = { session_name: data.session.name };
+  const sessionColors = getSessionColors(sessionLike);
+  const sessionLabel  = getSessionDisplayName(sessionLike);
+  const sessionIcon   = getSessionIcon(sessionLike);
+  const lap           = getLapDisplay(sessionLike, data.currentLap, data.session.totalLaps);
+  const pct           = lap.showProgress ? Math.min(100, lap.progress * 100) : 0;
 
   if (isMobile) {
     return (
       <div style={{ background: '#15151e', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        {/* Top row: status badge · race name · SC badge */}
+        {/* Top row: session badge · session name · SC badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px 6px' }}>
           {phase === 'LIVE' ? (
             <div style={{
-              background: 'rgba(232,0,45,0.15)', border: '1px solid rgba(232,0,45,0.3)',
+              background: sessionColors.tint, border: `1px solid ${sessionColors.border}`,
               borderRadius: 20, padding: '3px 10px',
               display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
             }}>
-              <span className="live-dot" style={{ color: '#e8002d', fontSize: 7 }}>●</span>
-              <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1.5, color: '#e8002d' }}>LIVE</span>
+              <span className="live-dot" style={{ color: sessionColors.primary, fontSize: 7 }}>●</span>
+              <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1.5, color: sessionColors.primary }}>
+                {sessionIcon} {sessionLabel} · LIVE
+              </span>
             </div>
           ) : (
             <div style={{ background: 'rgba(136,136,136,0.15)', border: '1px solid rgba(136,136,136,0.3)', borderRadius: 20, padding: '3px 10px', flexShrink: 0 }}>
-              <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1.5, color: '#888' }}>DONE</span>
+              <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1.5, color: '#888' }}>{sessionLabel} · DONE</span>
             </div>
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -74,16 +86,24 @@ export default function SessionHeader({ data, phase }: Props) {
           <SCBadge status={data.safetyCarStatus} />
         </div>
 
-        {/* Lap counter row */}
+        {/* Lap / session counter row */}
         <div style={{ padding: '0 16px 8px', textAlign: 'center' }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: -0.5 }}>
-            LAP{' '}
-            <span style={{ color: '#e8002d' }}>{data.currentLap}</span>
-            <span style={{ fontSize: 14, color: '#555', fontWeight: 600 }}>/{data.session.totalLaps}</span>
-          </div>
-          <div style={{ width: '100%', height: 4, background: '#2a2a35', borderRadius: 2, marginTop: 6, overflow: 'hidden' }}>
-            <div style={{ width: `${pct}%`, height: '100%', background: '#e8002d', borderRadius: 2, transition: 'width 1s ease' }} />
-          </div>
+          {lap.showProgress ? (
+            <>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: -0.5 }}>
+                LAP{' '}
+                <span style={{ color: sessionColors.primary }}>{data.currentLap}</span>
+                <span style={{ fontSize: 14, color: '#555', fontWeight: 600 }}>/{data.session.totalLaps}</span>
+              </div>
+              <div style={{ width: '100%', height: 4, background: '#2a2a35', borderRadius: 2, marginTop: 6, overflow: 'hidden' }}>
+                <div style={{ width: `${pct}%`, height: '100%', background: sessionColors.primary, borderRadius: 2, transition: 'width 1s ease' }} />
+              </div>
+            </>
+          ) : (
+            <div style={{ fontSize: 16, fontWeight: 800, color: sessionColors.primary, letterSpacing: 1.5, padding: '4px 0 6px' }}>
+              {lap.value} IN PROGRESS
+            </div>
+          )}
         </div>
 
         {/* Weather strip — horizontal scroll */}
@@ -119,13 +139,15 @@ export default function SessionHeader({ data, phase }: Props) {
         <div style={{ flex: '1 1 auto', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             {phase === 'LIVE' ? (
-              <div style={{ background: 'rgba(232,0,45,0.15)', border: '1px solid rgba(232,0,45,0.4)', borderRadius: 20, padding: '3px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span className="live-dot" style={{ color: '#e8002d', fontSize: 8 }}>●</span>
-                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: '#e8002d' }}>RACE IN PROGRESS</span>
+              <div style={{ background: sessionColors.tint, border: `1px solid ${sessionColors.border}`, borderRadius: 20, padding: '3px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="live-dot" style={{ color: sessionColors.primary, fontSize: 8 }}>●</span>
+                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: sessionColors.primary }}>
+                  {sessionIcon} {sessionLabel} · LIVE
+                </span>
               </div>
             ) : (
               <div style={{ background: 'rgba(136,136,136,0.15)', border: '1px solid rgba(136,136,136,0.3)', borderRadius: 20, padding: '3px 12px' }}>
-                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: '#888' }}>RACE COMPLETE</span>
+                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: '#888' }}>{sessionLabel} · COMPLETE</span>
               </div>
             )}
             <SCBadge status={data.safetyCarStatus} />
@@ -135,14 +157,22 @@ export default function SessionHeader({ data, phase }: Props) {
         </div>
         {/* Center */}
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#888', marginBottom: 4 }}>LAP</div>
-          <div style={{ fontSize: 40, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-            {data.currentLap}
-            <span style={{ fontSize: 22, color: '#555', fontWeight: 600 }}>/{data.session.totalLaps}</span>
-          </div>
-          <div style={{ width: 140, height: 3, background: '#2a2a35', borderRadius: 2, marginTop: 8, overflow: 'hidden' }}>
-            <div style={{ width: `${pct}%`, height: '100%', background: '#e8002d', transition: 'width 0.8s ease', borderRadius: 2 }} />
-          </div>
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#888', marginBottom: 4 }}>{lap.label}</div>
+          {lap.showProgress ? (
+            <>
+              <div style={{ fontSize: 40, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                {data.currentLap}
+                <span style={{ fontSize: 22, color: '#555', fontWeight: 600 }}>/{data.session.totalLaps}</span>
+              </div>
+              <div style={{ width: 140, height: 3, background: '#2a2a35', borderRadius: 2, marginTop: 8, overflow: 'hidden' }}>
+                <div style={{ width: `${pct}%`, height: '100%', background: sessionColors.primary, transition: 'width 0.8s ease', borderRadius: 2 }} />
+              </div>
+            </>
+          ) : (
+            <div style={{ fontSize: 28, fontWeight: 900, color: sessionColors.primary, lineHeight: 1, letterSpacing: 1 }}>
+              {lap.value}
+            </div>
+          )}
         </div>
         {/* Right */}
         <div style={{ flexShrink: 0, textAlign: 'right' }}>

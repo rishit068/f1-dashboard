@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
 import { formatIST } from '../utils';
 import { useIsMobile } from '../hooks/useBreakpoint';
+import { getSessionShortLabel, getSessionColors } from '../utils/sessionHelpers';
+import type { OpenF1Session } from '../types';
 
 interface Props {
   isLive: boolean;
+  liveSession?: OpenF1Session | null;
   onLiveClick: () => void;
 }
 
-export default function StickyNav({ isLive, onLiveClick }: Props) {
+export default function StickyNav({ isLive, liveSession = null, onLiveClick }: Props) {
+  const liveLabel = isLive ? getSessionShortLabel(liveSession) : 'LIVE';
+  const liveColor = isLive ? getSessionColors(liveSession).primary : '#e8002d';
   const [clock, setClock] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const isMobile = useIsMobile();
@@ -55,16 +60,26 @@ export default function StickyNav({ isLive, onLiveClick }: Props) {
         padding: isMobile ? '0 16px' : '0 32px',
         transition: 'background 0.3s',
       }}>
-        {/* F1 Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-          <div style={{
-            background: '#e8002d', color: '#fff',
-            fontWeight: 900, fontSize: 18,
-            padding: '3px 14px', letterSpacing: 1,
-            fontFamily: "'Titillium Web', sans-serif",
-            clipPath: 'polygon(6% 0, 100% 0, 94% 100%, 0% 100%)',
-          }}>F1</div>
-        </div>
+        {/* F1 Logo (official red-on-white mark) */}
+        <a
+          href="#next"
+          aria-label="F1 home"
+          style={{
+            display: 'flex', alignItems: 'center', flexShrink: 0,
+            textDecoration: 'none',
+          }}
+        >
+          <img
+            src="/f1-logo.png"
+            alt="F1"
+            style={{
+              height: isMobile ? 20 : 24,
+              width: 'auto',
+              display: 'block',
+              objectFit: 'contain',
+            }}
+          />
+        </a>
 
         {/* Desktop nav links */}
         {!isMobile && (
@@ -81,8 +96,8 @@ export default function StickyNav({ isLive, onLiveClick }: Props) {
                 transition: 'color 0.2s',
               }}
             >
-              {isLive && <span className="live-dot" style={{ color: '#e8002d', fontSize: 10 }}>●</span>}
-              LIVE
+              {isLive && <span className="live-dot" style={{ color: liveColor, fontSize: 10 }}>●</span>}
+              {liveLabel}
             </button>
             {[
               { label: 'DRIVERS',      href: '#drivers' },

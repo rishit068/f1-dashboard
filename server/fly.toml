@@ -1,0 +1,40 @@
+# Fly.io config for the F1 live backend.
+#
+# This app holds a long-lived WebSocket connection to F1's SignalR feed and
+# fans the data out to all connected dashboard clients. It MUST stay running
+# 24/7 so the upstream connection survives — auto-stop would kill it and add
+# 5-10 s of reconnect delay every time the first viewer arrives.
+#
+# Cost: stays well inside Fly's free allowance for a single shared-cpu-1x VM
+# with 256 MB. If you outgrow this, bump min_machines_running or RAM.
+
+app = "rishit-f1-live"
+primary_region = "bom"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT     = "8080"
+
+[http_service]
+  internal_port       = 8080
+  force_https         = true
+  auto_stop_machines  = false        # ← keep upstream SignalR alive
+  auto_start_machines = true
+  min_machines_running = 1
+  processes           = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval     = "30s"
+    method       = "GET"
+    timeout      = "5s"
+    path         = "/healthz"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1

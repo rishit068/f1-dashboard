@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { getSessionShortLabel, getSessionColors } from '../utils/sessionHelpers';
+import type { OpenF1Session } from '../types';
 
 export type TabId = 'live' | 'drivers' | 'teams' | 'calendar' | 'next';
 
@@ -19,10 +21,13 @@ const TABS: Tab[] = [
 interface Props {
   active: TabId;
   isLive: boolean;
+  liveSession?: OpenF1Session | null;
   onTab: (id: TabId) => void;
 }
 
-export default function BottomTabBar({ active, isLive, onTab }: Props) {
+export default function BottomTabBar({ active, isLive, liveSession = null, onTab }: Props) {
+  const liveLabel = isLive ? getSessionShortLabel(liveSession) : 'LIVE';
+  const liveColor = isLive ? getSessionColors(liveSession).primary : '#e8002d';
   const [flashId, setFlashId] = useState<TabId | null>(null);
 
   const handleTap = (id: TabId) => {
@@ -68,7 +73,7 @@ export default function BottomTabBar({ active, isLive, onTab }: Props) {
               fontSize: isLiveTab ? 14 : 20,
               lineHeight: 1,
               color: isLiveTab
-                ? (isLive ? '#e8002d' : '#555')
+                ? (isLive ? liveColor : '#555')
                 : isActive ? '#e8002d' : '#666',
               animation: isLiveTab && isLive ? 'livePulse 1.2s ease-in-out infinite' : 'none',
             }}>
@@ -80,11 +85,11 @@ export default function BottomTabBar({ active, isLive, onTab }: Props) {
               fontSize: 9,
               letterSpacing: 0.5,
               fontWeight: isActive ? 700 : 500,
-              color: isActive ? '#e8002d' : '#666',
+              color: isLiveTab && isLive ? liveColor : isActive ? '#e8002d' : '#666',
               fontFamily: "'Titillium Web', sans-serif",
               textTransform: 'uppercase',
             }}>
-              {tab.label}
+              {isLiveTab ? liveLabel : tab.label}
             </span>
           </button>
         );

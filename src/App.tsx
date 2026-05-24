@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import './index.css';
 import { useF1Data } from './hooks/useF1Data';
-import { useLiveSession } from './hooks/useLiveSession';
+import { useLiveBackend, type LiveSessionDebug } from './hooks/useLiveBackend';
 import { useIsMobile } from './hooks/useBreakpoint';
+import { isSessionLive, isValidSession } from './utils/sessionHelpers';
 import { useDriverSeasonResults } from './hooks/useDriverSeasonResults';
-import IntroAnimation from './components/IntroAnimation';
+import { useHashRoute, isLiveRoute } from './hooks/useHashRoute';
+import WelcomeIntro from './components/WelcomeIntro';
 import StickyNav from './components/StickyNav';
 import BottomTabBar, { type TabId } from './components/BottomTabBar';
 import Hero from './components/Hero';
@@ -12,19 +14,23 @@ import SeasonCalendar from './components/SeasonCalendar';
 import DriversChampionship from './components/DriversChampionship';
 import ConstructorsCup from './components/ConstructorsCup';
 import PaddockIntel from './components/PaddockIntel';
-import LiveSection from './components/live/LiveSection';
 import RaceResultSheet from './components/results/RaceResultSheet';
 import DriverProfileSheet from './components/DriverProfileSheet';
+import LivePage from './pages/LivePage';
 import type { SelectedRace, DriverStanding } from './types';
 
 export default function App() {
+  // Intro plays on every page load — no storage gate
   const [introDone, setIntroDone] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
-  const [showLive, setShowLive] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('next');
   const [selectedRace, setSelectedRace] = useState<SelectedRace | null>(null);
   const [selectedDriver, setSelectedDriver] = useState<DriverStanding | null>(null);
   const isMobile = useIsMobile();
+
+  // Routing — `#/live` swaps the whole page out for LivePage
+  const { hash, navigate } = useHashRoute();
+  const onLivePage = isLiveRoute(hash);
 
   // Fetch driver season stats here so the sheet can be rendered at root level
   // (avoids iOS Safari overflow:hidden clipping fixed-position children)
@@ -36,7 +42,27 @@ export default function App() {
     loading, errors, currentRound, totalRounds,
   } = useF1Data();
 
-  const { session: liveSession, phase: livePhase, isLive, checking: liveChecking } = useLiveSession();
+  // Live data now comes from our own Node backend (server/) which bridges
+  // F1's official SignalR feed → WebSocket. Replaces the old OpenF1 polling.
+  const live = useLiveBackend();
+  const liveSession  = live.session;
+  const livePhase    = live.phase;
+  const isLive       = live.phase === 'LIVE';
+  const liveChecking = live.checking;
+
+  // Build the legacy `LiveSessionDebug` shape so NoLiveSession's diagnostic
+  // panel doesn't need rewriting. Backend connection error replaces api error.
+  const liveDebug: LiveSessionDebug = {
+    lastCheck:       new Date(),
+    lastSessionName: liveSession?.session_name ?? null,
+    lastSessionType: liveSession?.session_type ?? null,
+    sessionStart:    liveSession ? new Date(liveSession.date_start) : null,
+    sessionEnd:      liveSession ? new Date(liveSession.date_end) : null,
+    isValidType:     liveSession ? isValidSession(liveSession) : false,
+    isWithinWindow:  liveSession ? isSessionLive(liveSession) : false,
+    apiError:        live.error,
+    apiStatus:       live.connected ? 200 : null,
+  };
 
   useEffect(() => {
     if (introDone) {
@@ -45,34 +71,56 @@ export default function App() {
     }
   }, [introDone]);
 
-  // Auto-show live panel when race goes live
+  // Auto-show live page when race goes live
   useEffect(() => {
-    if (isLive) { setShowLive(true); setActiveTab('live'); }
-  }, [isLive]);
+    if (isLive && !onLivePage) setActiveTab('live');
+  }, [isLive, onLivePage]);
+
+  // Keep activeTab in sync when route changes
+  useEffect(() => {
+    if (onLivePage) setActiveTab('live');
+  }, [onLivePage]);
+
+  // Scroll to anchor when returning to dashboard with a hash like "#drivers"
+  useEffect(() => {
+    if (onLivePage) return;
+    if (!hash || hash === '#' || hash === '#/') return;
+    const id = hash.replace(/^#\/?/, '');
+    if (!id) return;
+    const tryScroll = () => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    setTimeout(tryScroll, 100);
+  }, [hash, onLivePage]);
 
   // Handle tab taps on mobile
   const handleTab = (id: TabId) => {
     setActiveTab(id);
     if (id === 'live') {
-      setShowLive(v => !v);
-      if (!showLive) {
-        setTimeout(() => document.getElementById('live')?.scrollIntoView({ behavior: 'smooth' }), 50);
-      }
-    } else {
-      // Close live panel when switching away on mobile
-      if (isMobile) setShowLive(false);
-      const targets: Record<TabId, string> = {
-        next: 'next', drivers: 'drivers', teams: 'constructors',
-        calendar: 'calendar', live: 'live',
-      };
-      setTimeout(() => document.getElementById(targets[id])?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+      navigate('#/live');
+      return;
     }
+    // Coming back to dashboard from a possible /live page
+    if (onLivePage) {
+      navigate(`#${id === 'teams' ? 'constructors' : id}`);
+      return;
+    }
+    const targets: Record<TabId, string> = {
+      next: 'next', drivers: 'drivers', teams: 'constructors',
+      calendar: 'calendar', live: 'live',
+    };
+    setTimeout(() => document.getElementById(targets[id])?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
-  // Desktop LIVE toggle (from nav button)
+  // Desktop LIVE button → navigate to dedicated live page
   const handleDesktopLiveClick = () => {
-    setShowLive(v => !v);
-    if (!showLive) setTimeout(() => document.getElementById('live')?.scrollIntoView({ behavior: 'smooth' }), 50);
+    navigate('#/live');
+  };
+
+  // From LivePage: go back to dashboard
+  const handleBackToDashboard = () => {
+    navigate('#/');
   };
 
   const navH = isMobile ? 48 : 52;
@@ -80,16 +128,35 @@ export default function App() {
 
   return (
     <>
-      {!introDone && <IntroAnimation onDone={() => setIntroDone(true)} />}
+      {!introDone && <WelcomeIntro onComplete={() => setIntroDone(true)} />}
 
-      <div style={{ opacity: contentVisible ? 1 : 0, transition: 'opacity 0.5s ease' }}>
+      {/* ── /live route — dedicated standalone page ── */}
+      {onLivePage && contentVisible && (
+        <LivePage
+          liveSession={liveSession}
+          livePhase={livePhase}
+          isLive={isLive}
+          liveChecking={liveChecking}
+          liveDebug={liveDebug}
+          liveState={live.state}
+          nextRace={nextRace}
+          onBack={handleBackToDashboard}
+        />
+      )}
+
+      {/* ── Main dashboard ── */}
+      <div style={{
+        opacity: contentVisible && !onLivePage ? 1 : 0,
+        transition: 'opacity 0.5s ease',
+        display: onLivePage ? 'none' : 'block',
+      }}>
 
         {/* ── Top nav ── */}
-        <StickyNav isLive={isLive} onLiveClick={handleDesktopLiveClick} />
+        <StickyNav isLive={isLive} liveSession={liveSession} onLiveClick={handleDesktopLiveClick} />
 
         {/* ── Bottom tab bar (mobile only) ── */}
         {isMobile && (
-          <BottomTabBar active={activeTab} isLive={isLive} onTab={handleTab} />
+          <BottomTabBar active={activeTab} isLive={isLive} liveSession={liveSession} onTab={handleTab} />
         )}
 
         <main style={{
@@ -97,18 +164,6 @@ export default function App() {
           paddingBottom: isMobile ? bottomBarH + 'px' : 0,
           overflowX: 'hidden',
         }}>
-
-          {/* ── LIVE SECTION ── */}
-          {showLive && (
-            <div className="fade-up" style={{ animationFillMode: 'both' }}>
-              <LiveSection
-                sessionKey={liveSession?.session_key ?? null}
-                phase={livePhase}
-                nextRace={nextRace}
-                checking={liveChecking}
-              />
-            </div>
-          )}
 
           {/* ── HERO / NEXT RACE ── */}
           <div id="next" className={contentVisible ? 'fade-up' : ''} style={{ animationDelay: '0ms', animationFillMode: 'both' }}>

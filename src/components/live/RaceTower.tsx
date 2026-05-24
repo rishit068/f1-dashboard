@@ -3,6 +3,7 @@ import type { LiveRaceState } from '../../types';
 import RaceRow from './RaceRow';
 import MobileDriverCard from './MobileDriverCard';
 import { useIsMobile } from '../../hooks/useBreakpoint';
+import { sessionKind, getTowerHeading } from '../../utils/sessionHelpers';
 
 interface Props { data: LiveRaceState }
 
@@ -20,6 +21,13 @@ export default function RaceTower({ data }: Props) {
   const px = isMobile ? 16 : 32;
   const pt = isMobile ? 24 : 40;
 
+  // Session-aware column set and heading
+  const sessionLike = { session_name: data.session.name };
+  const kind        = sessionKind(sessionLike);
+  const heading     = getTowerHeading(sessionLike);
+  const isPractice  = kind === 'practice';
+  const isQualifying = kind === 'qualifying';
+
   return (
     <div style={{ background: '#f5f5f0', padding: `${pt}px ${px}px 0` }}>
       <div style={{ maxWidth: isMobile ? '100%' : 1200, margin: '0 auto' }}>
@@ -27,11 +35,11 @@ export default function RaceTower({ data }: Props) {
         {/* Heading */}
         <div style={{ marginBottom: isMobile ? 14 : 20, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', paddingLeft: isMobile ? 0 : 0 }}>
           <h2 className="mixed-heading">
-            Race <span className="serif-red">Tower</span>
+            {heading} <span className="serif-red">Tower</span>
           </h2>
           {!isMobile && (
             <span className="label">
-              LIVE POSITIONS · ROUND {data.session.round ?? '–'} · UPDATING EVERY 4S
+              LIVE TIMING · ROUND {data.session.round ?? '–'} · UPDATING EVERY 4S
             </span>
           )}
           {isMobile && (
@@ -61,19 +69,23 @@ export default function RaceTower({ data }: Props) {
               ))}
             </div>
           ) : (
-            /* ── Desktop: full table ── */
+            /* ── Desktop: full table ──
+               NOTE: Column count is held constant (9 cells) across all session
+               types so it stays aligned with RaceRow. For practice/qualifying
+               the INTERVAL/PITS columns will naturally render "—" since the
+               OpenF1 /intervals endpoint returns [] for non-race sessions. */
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
                   <th style={{ ...TH, textAlign: 'left', paddingLeft: 16 }}>POS</th>
                   <th style={{ ...TH, textAlign: 'left' }}>DRIVER</th>
                   <th style={{ ...TH, textAlign: 'center' }}>TIRE</th>
-                  <th style={{ ...TH, textAlign: 'center' }}>LAP</th>
+                  <th style={{ ...TH, textAlign: 'center' }}>{isPractice || isQualifying ? 'LAPS' : 'LAP'}</th>
                   <th style={{ ...TH, textAlign: 'right' }}>GAP</th>
-                  <th style={{ ...TH, textAlign: 'right' }}>INTERVAL</th>
+                  <th style={{ ...TH, textAlign: 'right' }}>{isPractice || isQualifying ? 'BEST' : 'INTERVAL'}</th>
                   <th style={{ ...TH, textAlign: 'right' }}>LAST LAP</th>
                   <th style={{ ...TH, textAlign: 'center' }}>STATUS</th>
-                  <th style={{ ...TH, textAlign: 'center', paddingRight: 16 }}>PITS</th>
+                  <th style={{ ...TH, textAlign: 'center', paddingRight: 16 }}>{isPractice || isQualifying ? 'TIME' : 'PITS'}</th>
                 </tr>
               </thead>
               <tbody>
