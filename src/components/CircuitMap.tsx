@@ -91,7 +91,11 @@ export default function CircuitMap({ circuitId, color = '#e8002d', isMobile = fa
             height: 'auto',
             margin: '0 auto',
             borderRadius: 6,
-            filter: 'invert(1) hue-rotate(180deg) brightness(0.88) contrast(1.05)',
+            // Wikipedia images are white-bg → invert to display on dark panel.
+            // User-uploaded images set `invertColors: false` to render as-is.
+            filter: (circuit.invertColors ?? true)
+              ? 'invert(1) hue-rotate(180deg) brightness(0.88) contrast(1.05)'
+              : 'none',
           } as React.CSSProperties}
         />
 

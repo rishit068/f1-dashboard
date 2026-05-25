@@ -9,8 +9,14 @@ export interface CircuitImage {
   lapRecordDriver: string;
   lapRecordYear: string;
   drsZones: number;
-  /** Verified Wikimedia Commons CDN thumbnail URL (700 px wide) */
+  /** Either a Wikimedia CDN thumbnail URL or a local /circuits/*.png path. */
   imageUrl: string;
+  /**
+   * Whether to apply the CSS invert filter that flips Wikipedia's
+   * white-bg circuit maps to dark-on-dark. Defaults to true.
+   * Set false for user-uploaded images that already have their own colours.
+   */
+  invertColors?: boolean;
 }
 
 // All URLs verified via the Wikimedia Commons API (action=query&prop=imageinfo).
@@ -36,7 +42,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Australia', city: 'Melbourne',
     turns: 16, length: '5.278 km', lapRecord: '1:20.235',
     lapRecordDriver: 'Charles Leclerc', lapRecordYear: '2022', drsZones: 4,
-    imageUrl: t('fb', 'Circuit_Albert_Park.svg'),
+    imageUrl: '/circuits/albert_park.avif',
+    invertColors: false,
   },
   {
     id: 'shanghai',
@@ -44,7 +51,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'China', city: 'Shanghai',
     turns: 16, length: '5.451 km', lapRecord: '1:32.238',
     lapRecordDriver: 'Michael Schumacher', lapRecordYear: '2004', drsZones: 2,
-    imageUrl: t('14', 'Shanghai_International_Racing_Circuit_track_map.svg'),
+    imageUrl: '/circuits/shanghai.avif',
+    invertColors: false,
   },
   {
     id: 'suzuka',
@@ -52,7 +60,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Japan', city: 'Suzuka',
     turns: 18, length: '5.807 km', lapRecord: '1:30.983',
     lapRecordDriver: 'Lewis Hamilton', lapRecordYear: '2019', drsZones: 2,
-    imageUrl: t('ec', 'Suzuka_circuit_map--2005.svg'),
+    imageUrl: '/circuits/suzuka.avif',
+    invertColors: false,
   },
   {
     id: 'bahrain',
@@ -76,7 +85,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'USA', city: 'Miami',
     turns: 19, length: '5.412 km', lapRecord: '1:29.708',
     lapRecordDriver: 'Max Verstappen', lapRecordYear: '2023', drsZones: 3,
-    imageUrl: t('49', 'Hard_Rock_Stadium_Circuit_2022.svg'),
+    imageUrl: '/circuits/miami.avif',
+    invertColors: false,
   },
   {
     id: 'imola',
@@ -92,7 +102,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Monaco', city: 'Monte Carlo',
     turns: 19, length: '3.337 km', lapRecord: '1:12.909',
     lapRecordDriver: 'Lewis Hamilton', lapRecordYear: '2021', drsZones: 1,
-    imageUrl: t('36', 'Monte_Carlo_Formula_1_track_map.svg'),
+    imageUrl: '/circuits/monaco.avif',
+    invertColors: false,
   },
   {
     id: 'catalunya',
@@ -100,7 +111,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Spain', city: 'Barcelona',
     turns: 16, length: '4.675 km', lapRecord: '1:16.330',
     lapRecordDriver: 'Max Verstappen', lapRecordYear: '2021', drsZones: 2,
-    imageUrl: t('87', 'Circuit_de_Catalunya_moto_2021.svg'),
+    imageUrl: '/circuits/catalunya.avif',
+    invertColors: false,
   },
   {
     id: 'villeneuve',
@@ -108,7 +120,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Canada', city: 'Montreal',
     turns: 14, length: '4.361 km', lapRecord: '1:13.078',
     lapRecordDriver: 'Valtteri Bottas', lapRecordYear: '2019', drsZones: 2,
-    imageUrl: t('21', 'Circuit_Gilles_Villeneuve.svg'),
+    imageUrl: '/circuits/villeneuve.avif',
+    invertColors: false,
   },
   {
     id: 'red_bull_ring',
@@ -116,7 +129,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Austria', city: 'Spielberg',
     turns: 10, length: '4.318 km', lapRecord: '1:05.619',
     lapRecordDriver: 'Carlos Sainz', lapRecordYear: '2020', drsZones: 3,
-    imageUrl: t('4e', 'Spielberg_bare_map_numbers_contextless_2021_corner_names.svg'),
+    imageUrl: '/circuits/red_bull_ring.avif',
+    invertColors: false,
   },
   {
     id: 'silverstone',
@@ -124,7 +138,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'UK', city: 'Silverstone',
     turns: 18, length: '5.891 km', lapRecord: '1:27.097',
     lapRecordDriver: 'Max Verstappen', lapRecordYear: '2020', drsZones: 2,
-    imageUrl: t('bd', 'Silverstone_Circuit_2020.png'),
+    imageUrl: '/circuits/silverstone.avif',
+    invertColors: false,
   },
   {
     id: 'spa',
@@ -132,7 +147,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Belgium', city: 'Stavelot',
     turns: 19, length: '7.004 km', lapRecord: '1:46.286',
     lapRecordDriver: 'Valtteri Bottas', lapRecordYear: '2018', drsZones: 2,
-    imageUrl: t('54', 'Spa-Francorchamps_of_Belgium.svg'),
+    imageUrl: '/circuits/spa.avif',
+    invertColors: false,
   },
   {
     id: 'hungaroring',
@@ -140,7 +156,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Hungary', city: 'Budapest',
     turns: 14, length: '4.381 km', lapRecord: '1:16.627',
     lapRecordDriver: 'Lewis Hamilton', lapRecordYear: '2020', drsZones: 1,
-    imageUrl: t('91', 'Hungaroring.svg'),
+    imageUrl: '/circuits/hungaroring.avif',
+    invertColors: false,
   },
   {
     id: 'zandvoort',
@@ -148,7 +165,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Netherlands', city: 'Zandvoort',
     turns: 14, length: '4.259 km', lapRecord: '1:11.097',
     lapRecordDriver: 'Lewis Hamilton', lapRecordYear: '2021', drsZones: 2,
-    imageUrl: t('78', 'Zandvoort_Circuit.png'),
+    imageUrl: '/circuits/zandvoort.avif',
+    invertColors: false,
   },
   {
     id: 'monza',
@@ -156,7 +174,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Italy', city: 'Monza',
     turns: 11, length: '5.793 km', lapRecord: '1:21.046',
     lapRecordDriver: 'Rubens Barrichello', lapRecordYear: '2004', drsZones: 2,
-    imageUrl: t('f8', 'Monza_track_map.svg'),
+    imageUrl: '/circuits/monza.avif',
+    invertColors: false,
   },
   {
     id: 'baku',
@@ -164,7 +183,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Azerbaijan', city: 'Baku',
     turns: 20, length: '6.003 km', lapRecord: '1:43.009',
     lapRecordDriver: 'Charles Leclerc', lapRecordYear: '2019', drsZones: 2,
-    imageUrl: t('f1', 'Baku_Formula_One_circuit_map.svg'),
+    imageUrl: '/circuits/baku.avif',
+    invertColors: false,
   },
   {
     id: 'marina_bay',
@@ -172,7 +192,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Singapore', city: 'Singapore',
     turns: 19, length: '4.940 km', lapRecord: '1:35.867',
     lapRecordDriver: 'Lewis Hamilton', lapRecordYear: '2023', drsZones: 3,
-    imageUrl: t('8b', 'Marina_Bay_circuit_2023.svg'),
+    imageUrl: '/circuits/marina_bay.avif',
+    invertColors: false,
   },
   {
     id: 'americas',
@@ -180,7 +201,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'USA', city: 'Austin',
     turns: 20, length: '5.513 km', lapRecord: '1:36.169',
     lapRecordDriver: 'Charles Leclerc', lapRecordYear: '2019', drsZones: 2,
-    imageUrl: t('a5', 'Austin_circuit.svg'),
+    imageUrl: '/circuits/americas.avif',
+    invertColors: false,
   },
   {
     id: 'rodriguez',
@@ -188,7 +210,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Mexico', city: 'Mexico City',
     turns: 17, length: '4.304 km', lapRecord: '1:17.774',
     lapRecordDriver: 'Valtteri Bottas', lapRecordYear: '2021', drsZones: 3,
-    imageUrl: `${CDN}/3/36/Aut%C3%B3dromo_Hermanos_Rodr%C3%ADguez_2015.svg/${W}px-Aut%C3%B3dromo_Hermanos_Rodr%C3%ADguez_2015.svg.png`,
+    imageUrl: '/circuits/rodriguez.avif',
+    invertColors: false,
   },
   {
     id: 'interlagos',
@@ -196,8 +219,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Brazil', city: 'Sao Paulo',
     turns: 15, length: '4.309 km', lapRecord: '1:10.540',
     lapRecordDriver: 'Valtteri Bottas', lapRecordYear: '2018', drsZones: 2,
-    // No usable Wikipedia circuit map found — fallback renders instead
-    imageUrl: '',
+    imageUrl: '/circuits/interlagos.avif',
+    invertColors: false,
   },
   {
     id: 'las_vegas',
@@ -205,7 +228,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'USA', city: 'Las Vegas',
     turns: 17, length: '6.201 km', lapRecord: '1:35.490',
     lapRecordDriver: 'Oscar Piastri', lapRecordYear: '2024', drsZones: 2,
-    imageUrl: t('43', '2023_Las_Vegas_street_circuit.svg'),
+    imageUrl: '/circuits/las_vegas.avif',
+    invertColors: false,
   },
   {
     id: 'losail',
@@ -213,7 +237,8 @@ const CIRCUITS: CircuitImage[] = [
     country: 'Qatar', city: 'Lusail',
     turns: 16, length: '5.380 km', lapRecord: '1:24.319',
     lapRecordDriver: 'Max Verstappen', lapRecordYear: '2023', drsZones: 2,
-    imageUrl: t('c7', 'Lusail_International_Circuit_2023.svg'),
+    imageUrl: '/circuits/losail.avif',
+    invertColors: false,
   },
   {
     id: 'yas_marina',
@@ -221,7 +246,17 @@ const CIRCUITS: CircuitImage[] = [
     country: 'UAE', city: 'Abu Dhabi',
     turns: 16, length: '5.281 km', lapRecord: '1:26.103',
     lapRecordDriver: 'Max Verstappen', lapRecordYear: '2021', drsZones: 2,
-    imageUrl: t('b0', 'Yas_Marina_Circuit.png'),
+    imageUrl: '/circuits/yas_marina.avif',
+    invertColors: false,
+  },
+  {
+    id: 'madring',
+    name: 'IFEMA Madrid Circuit',
+    country: 'Spain', city: 'Madrid',
+    turns: 22, length: '5.474 km', lapRecord: '—',
+    lapRecordDriver: '—', lapRecordYear: '2026', drsZones: 3,
+    imageUrl: '/circuits/madring.avif',
+    invertColors: false,
   },
 ];
 
@@ -252,6 +287,9 @@ const ERGAST_TO_CIRCUIT: Record<string, string> = {
   las_vegas:     'las_vegas',
   losail:        'losail',
   yas_marina:    'yas_marina',
+  madring:       'madring',
+  madrid:        'madring',
+  ifema:         'madring',
 };
 
 const CIRCUIT_MAP = new Map<string, CircuitImage>(CIRCUITS.map(c => [c.id, c]));
