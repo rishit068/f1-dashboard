@@ -53,13 +53,18 @@ export default function StickyNav({ isLive, liveSession = null, onLiveClick }: P
         position: 'fixed', top: 0, left: 0, right: 0,
         zIndex: 500,
         height: isMobile ? 48 : 52,
-        background: scrolled ? 'rgba(21,21,30,0.96)' : '#15151e',
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
-        borderBottom: '1px solid rgba(232,0,45,0.25)',
+        // Frosted-glass nav — saturate boosts the orb colours behind it
+        background: scrolled ? 'rgba(4,6,13,0.8)' : 'rgba(4,6,13,0.6)',
+        backdropFilter: 'blur(24px) saturate(200%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+        borderBottom: scrolled
+          ? '1px solid rgba(255,255,255,0.1)'
+          : '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.05), 0 4px 24px rgba(0,0,0,0.4)',
         display: 'flex', alignItems: 'center',
         padding: isMobile ? '0 16px' : '0 32px',
-        transition: 'background 0.3s',
-      }}>
+        transition: 'background 0.3s, border-color 0.3s',
+      } as React.CSSProperties}>
         {/* F1 Logo (official red-on-white mark) */}
         <a
           href="#next"

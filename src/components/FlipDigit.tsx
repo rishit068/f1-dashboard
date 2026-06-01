@@ -27,22 +27,14 @@ export default function FlipDigit({ value, label }: Props) {
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
     }}>
-      <div style={{
-        background: '#1e1e2a',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 8,
-        padding: '14px 20px',
-        minWidth: 80,
+      <div className="glass-gradient-border glass-hover" style={{
+        borderRadius: 14,
+        padding: '20px 24px',
+        minWidth: 84,
         textAlign: 'center',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* Horizontal divider line through middle (classic flip clock look) */}
-        <div style={{
-          position: 'absolute', left: 0, right: 0, top: '50%',
-          height: 1, background: 'rgba(0,0,0,0.4)', zIndex: 2,
-        }} />
         <span
           key={display}
           className={animating ? '' : ''}
@@ -53,6 +45,7 @@ export default function FlipDigit({ value, label }: Props) {
             letterSpacing: -1,
             animation: animating ? undefined : 'flipIn 0.28s ease-out',
             lineHeight: 1,
+            textShadow: '0 0 20px rgba(0,212,255,0.20)',
           }}
         >
           {padTwo(display)}

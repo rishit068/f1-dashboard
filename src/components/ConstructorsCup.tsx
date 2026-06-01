@@ -47,20 +47,21 @@ function getDriversForTeam(teamName: string, driverStandings: DriverStanding[]):
 
 // ── Driver skeleton (loading placeholder) ─────────────────────────────────────
 function DriverSkeleton() {
+  const ph = 'linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)';
   return (
     <>
       {[0, 1].map(i => (
         <div key={i} style={{
           display: 'flex', alignItems: 'center', gap: 10,
-          padding: '10px 16px', borderBottom: '1px solid #eee', minHeight: 56,
+          padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', minHeight: 56,
         }}>
-          <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f0f0f0', flexShrink: 0 }} />
-          <div style={{ width: 4, height: 36, borderRadius: 2, background: '#e8e8e0', flexShrink: 0 }} />
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', flexShrink: 0 }} />
+          <div style={{ width: 4, height: 36, borderRadius: 2, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }} />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ height: 13, width: 120, borderRadius: 3, background: 'linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
-            <div style={{ height: 10, width: 70, borderRadius: 3, background: 'linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
+            <div style={{ height: 13, width: 120, borderRadius: 3, background: ph, backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
+            <div style={{ height: 10, width: 70, borderRadius: 3, background: ph, backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
           </div>
-          <div style={{ width: 48, height: 20, borderRadius: 3, background: 'linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite', flexShrink: 0 }} />
+          <div style={{ width: 48, height: 20, borderRadius: 3, background: ph, backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite', flexShrink: 0 }} />
         </div>
       ))}
     </>
@@ -88,11 +89,11 @@ function DriverBreakdown({
       return (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
-          padding: '10px 16px', borderBottom: '1px solid #eee', minHeight: 56,
-          color: '#bbb', fontSize: 12, fontStyle: 'italic',
+          padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', minHeight: 56,
+          color: 'rgba(255,255,255,0.35)', fontSize: 12, fontStyle: 'italic',
         }}>
-          <div style={{ width: 28, height: 28, borderRadius: '50%', border: '1.5px solid #e8e8e0', flexShrink: 0 }} />
-          <div style={{ width: 4, height: 36, borderRadius: 2, background: '#e8e8e0', flexShrink: 0 }} />
+          <div style={{ width: 28, height: 28, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.10)', flexShrink: 0 }} />
+          <div style={{ width: 4, height: 36, borderRadius: 2, background: 'rgba(255,255,255,0.10)', flexShrink: 0 }} />
           <span>{fallback}</span>
         </div>
       );
@@ -106,7 +107,7 @@ function DriverBreakdown({
     return (
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10,
-        padding: '10px 16px', borderBottom: '1px solid #eee', minHeight: 56,
+        padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', minHeight: 56,
       }}>
         {/* Championship position badge */}
         <div style={{
@@ -123,7 +124,7 @@ function DriverBreakdown({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 4,
-            fontSize: 13, fontWeight: 700, color: '#15151e',
+            fontSize: 13, fontWeight: 700, color: '#ffffff',
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -131,15 +132,15 @@ function DriverBreakdown({
             </span>
             <span style={{ fontSize: 12, flexShrink: 0 }}>{flag}</span>
           </div>
-          <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
             #{num} · {d.wins} win{d.wins !== '1' ? 's' : ''}
           </div>
         </div>
         {/* Points */}
         <div style={{ flexShrink: 0, textAlign: 'right' }}>
-          <div style={{ fontSize: 16, fontWeight: 900, color: '#e8002d', fontVariantNumeric: 'tabular-nums' }}>
+          <div style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
             {pts}
-            <span style={{ fontSize: 9, color: 'rgba(232,0,45,0.5)', marginLeft: 2 }}>PTS</span>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', marginLeft: 2 }}>PTS</span>
           </div>
         </div>
       </div>
@@ -147,11 +148,17 @@ function DriverBreakdown({
   };
 
   return (
-    <div style={{ borderLeft: `3px solid ${teamColor}`, background: '#f8f8f8' }}>
+    <div style={{
+      borderLeft: `3px solid ${teamColor}`,
+      background: 'rgba(0,0,0,0.2)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderRadius: '0 0 12px 12px',
+    } as React.CSSProperties}>
       {/* Label */}
       <div style={{
-        fontSize: 10, color: '#999', letterSpacing: 1.5, fontWeight: 700,
-        padding: '10px 16px 6px', borderTop: '1px solid #eee',
+        fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: 1.5, fontWeight: 700,
+        padding: '10px 16px 6px', borderTop: '1px solid rgba(255,255,255,0.06)',
       }}>
         DRIVER BREAKDOWN
       </div>
@@ -171,24 +178,29 @@ function DriverBreakdown({
       {/* Points split bar */}
       {!loading && (pts1 + pts2 > 0) && (
         <div style={{ padding: '10px 16px 14px' }}>
-          <div style={{ fontSize: 10, color: '#aaa', letterSpacing: 1.2, fontWeight: 700, marginBottom: 6 }}>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: 1.2, fontWeight: 700, marginBottom: 6 }}>
             POINTS SPLIT
           </div>
-          <div style={{ display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', background: `${teamColor}30` }}>
+          <div style={{
+            display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden',
+            background: 'rgba(255,255,255,0.06)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+          } as React.CSSProperties}>
             <div style={{ width: `${pct1}%`, background: teamColor, transition: 'width 0.4s ease' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
-            <span style={{ fontSize: 10, color: '#888' }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)' }}>
               {d1 ? d1.Driver.familyName : '–'} · {pct1}%
             </span>
-            <span style={{ fontSize: 10, color: '#888' }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)' }}>
               {d2 ? d2.Driver.familyName : '–'} · {pct2}%
             </span>
           </div>
         </div>
       )}
       {!loading && (pts1 + pts2 === 0) && (
-        <div style={{ padding: '10px 16px 14px', fontSize: 11, color: '#bbb', textAlign: 'center' }}>
+        <div style={{ padding: '10px 16px 14px', fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center' }}>
           No points scored yet
         </div>
       )}
@@ -227,7 +239,13 @@ export default function ConstructorsCup({ standings, driverStandings, loading, r
           from { opacity: 1; max-height: 400px; }
           to   { opacity: 0; max-height: 0; }
         }
-        .ctor-row:hover { background: rgba(232,0,45,0.04) !important; }
+        .ctor-row { transition: background 0.18s ease, border-radius 0.18s ease; }
+        .ctor-row:hover {
+          background: rgba(255,255,255,0.05) !important;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border-radius: 10px;
+        }
       `}</style>
 
       <h3 className="mixed-heading" style={{ fontSize: isMobile ? 18 : 22, marginBottom: 4 }}>
@@ -253,7 +271,7 @@ export default function ConstructorsCup({ standings, driverStandings, loading, r
             const teamDrivers = getDriversForTeam(s.Constructor.name, driverStandings);
 
             return (
-              <div key={s.Constructor.constructorId} style={{ borderBottom: '1px solid #f0f0ea' }}>
+              <div key={s.Constructor.constructorId} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 {/* ── Constructor row ── */}
                 <div
                   className="ctor-row"
@@ -273,11 +291,12 @@ export default function ConstructorsCup({ standings, driverStandings, loading, r
                     userSelect: 'none',
                   }}
                 >
-                  {/* Colored top bar */}
+                  {/* Colored top bar with soft glow */}
                   <div style={{
-                    height: 3, background: teamColor, borderRadius: 2,
+                    height: 2, background: teamColor, borderRadius: 2,
                     marginBottom: 8, marginTop: isMobile ? 0 : 10,
-                    boxShadow: `0 0 8px ${teamColor}66`,
+                    boxShadow: `0 0 8px ${teamColor}80`,
+                    filter: 'blur(0.5px)',
                   }} />
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -288,13 +307,13 @@ export default function ConstructorsCup({ standings, driverStandings, loading, r
 
                     {/* Name + hint */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#15151e' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>
                         {s.Constructor.name}
                       </div>
-                      <div style={{ fontSize: 10, color: '#888', letterSpacing: 0.3, marginTop: 1 }}>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', letterSpacing: 0.3, marginTop: 1 }}>
                         {s.wins} win{s.wins !== '1' ? 's' : ''}
                         {isMobile && !hasExpandedOnce && (
-                          <span style={{ color: '#bbb', fontStyle: 'italic', marginLeft: 6 }}>
+                          <span style={{ color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', marginLeft: 6 }}>
                             tap for driver details
                           </span>
                         )}
@@ -302,14 +321,14 @@ export default function ConstructorsCup({ standings, driverStandings, loading, r
                     </div>
 
                     {/* Points */}
-                    <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 900, color: '#15151e', fontVariantNumeric: 'tabular-nums' }}>
+                    <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 900, color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
                       {s.points}
-                      <span style={{ fontSize: 9, color: '#bbb', marginLeft: 2, fontWeight: 600 }}>PTS</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', marginLeft: 2, fontWeight: 600 }}>PTS</span>
                     </div>
 
                     {/* Chevron */}
                     <span style={{
-                      color: isExpanded ? teamColor : '#ccc',
+                      color: isExpanded ? teamColor : 'rgba(255,255,255,0.35)',
                       fontSize: 12,
                       display: 'inline-block',
                       transform: `rotate(${isExpanded ? 180 : 0}deg)`,

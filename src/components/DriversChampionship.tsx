@@ -29,7 +29,16 @@ export default function DriversChampionship({ standings, loading, round, allRace
 
   return (
     <div style={{ flex: '1 1 0', minWidth: 0 }}>
-      <style>{`.driver-row:hover { background: rgba(232,0,45,0.04) !important; }`}</style>
+      <style>{`
+        .driver-row { transition: background 0.18s ease, border-radius 0.18s ease; }
+        .driver-row:hover {
+          background: rgba(255,255,255,0.05) !important;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border-radius: 10px;
+        }
+        .driver-row:hover .driver-info-icon { color: rgba(0,212,255,0.6) !important; }
+      `}</style>
 
       <h3 className="mixed-heading" style={{ fontSize: isMobile ? 18 : 22, marginBottom: 4 }}>
         Drivers' <span className="serif-red">Championship</span>
@@ -41,7 +50,7 @@ export default function DriversChampionship({ standings, loading, round, allRace
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="skeleton-light" style={{ height: isMobile ? 52 : 48, borderRadius: 6 }} />
+            <div key={i} className="skeleton-light" style={{ height: isMobile ? 52 : 48, borderRadius: 10 }} />
           ))}
         </div>
       ) : (
@@ -62,24 +71,19 @@ export default function DriversChampionship({ standings, loading, round, allRace
                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectDriver(s); } }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 12,
-                  padding: isMobile ? '13px 4px' : '10px 8px',
-                  borderBottom: '1px solid #f0f0ea',
+                  padding: isMobile ? '13px 8px' : '10px 12px',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
                   minHeight: isMobile ? 52 : 44,
                   cursor: 'pointer',
-                  borderLeft: '3px solid transparent',
                   WebkitTapHighlightColor: 'transparent',
-                  transition: 'background 0.15s',
                   outline: 'none',
                   userSelect: 'none',
-                  background: 'transparent',
-                }}
-                onMouseEnter={e => {
-                  if (isMobile) return;
-                  (e.currentTarget as HTMLElement).style.borderLeftColor = '#e8002d';
-                }}
-                onMouseLeave={e => {
-                  if (isMobile) return;
-                  (e.currentTarget as HTMLElement).style.borderLeftColor = 'transparent';
+                  // P1 gets a subtle gold tint
+                  background: pos === 1 ? 'rgba(255,215,0,0.04)' : 'transparent',
+                  border: pos === 1 ? '1px solid rgba(255,215,0,0.12)' : '1px solid transparent',
+                  borderRadius: pos === 1 ? 10 : 0,
+                  // Inset team-color glow stripe on the left
+                  boxShadow: `inset 3px 0 0 ${teamColor}`,
                 }}
               >
                 {/* Position */}
@@ -87,31 +91,28 @@ export default function DriversChampionship({ standings, loading, round, allRace
                   {pos}
                 </span>
 
-                {/* Team color bar */}
-                <div style={{ width: 3, height: isMobile ? 34 : 36, borderRadius: 2, background: teamColor, flexShrink: 0 }} />
-
                 {/* Driver info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#15151e', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {s.Driver.givenName} {s.Driver.familyName}
                     {!isMobile && <span style={{ fontSize: 13 }}>{flag}</span>}
                   </div>
-                  <div style={{ fontSize: 10, color: '#888', marginTop: 1 }}>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', marginTop: 1 }}>
                     {s.Constructors[0]?.name ?? ''}
                     {isMobile && !hasExpandedOnce && (
-                      <span style={{ color: '#ccc', fontStyle: 'italic', marginLeft: 6 }}>tap for season details</span>
+                      <span style={{ color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', marginLeft: 6 }}>tap for season details</span>
                     )}
                   </div>
                 </div>
 
                 {/* Points */}
-                <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 900, color: '#15151e', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 900, color: '#ffffff', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
                   {s.points}
-                  <span style={{ fontSize: 9, color: '#bbb', marginLeft: 2, fontWeight: 600 }}>PTS</span>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', marginLeft: 2, fontWeight: 600 }}>PTS</span>
                 </div>
 
                 {/* Info icon */}
-                <span style={{ fontSize: 14, color: '#ddd', flexShrink: 0, marginLeft: 2 }}>ⓘ</span>
+                <span className="driver-info-icon" style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)', flexShrink: 0, marginLeft: 2, transition: 'color 0.2s' }}>ⓘ</span>
               </div>
             );
           })}

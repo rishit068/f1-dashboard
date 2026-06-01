@@ -148,13 +148,15 @@ export default function WelcomeIntro({ onComplete }: Props) {
         className={`welcome-overlay${exiting ? ' exiting' : ''}`}
         style={{
           position: 'fixed', inset: 0, zIndex: 9999,
-          background: '#04060d',
+          background: 'rgba(4,6,13,0.92)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           overflow: 'hidden', userSelect: 'none',
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 3h1v1H1V3zm2-2h1v1H3V1z' fill='rgba(255,255,255,0.022)'/%3E%3C/svg%3E\")",
-        }}
+        } as React.CSSProperties}
       >
         {/* Vignette */}
         <div style={{
@@ -212,10 +214,13 @@ export default function WelcomeIntro({ onComplete }: Props) {
                 style={{
                   width: 26, height: 26, borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: on ? 'rgba(232,0,45,0.15)' : 'rgba(255,255,255,0.03)',
-                  border: on ? '1.5px solid rgba(232,0,45,0.5)' : '1.5px solid rgba(255,255,255,0.08)',
+                  // Frosted glass outer ring — both off and on states
+                  background: on ? 'rgba(255,24,1,0.12)' : 'rgba(255,255,255,0.03)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: on ? '1px solid rgba(255,24,1,0.40)' : '1px solid rgba(255,255,255,0.08)',
                   transition: on ? 'none' : 'background 0.06s, border-color 0.06s',
-                }}
+                } as React.CSSProperties}
               >
                 <div style={{
                   width: 16, height: 16, borderRadius: '50%',

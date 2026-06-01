@@ -80,9 +80,15 @@ function fmtDate(d: string): string {
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function CardSkeleton() {
   return (
-    <div style={{ margin: '0 16px 10px', borderRadius: 10, overflow: 'hidden', border: '1px solid #eee' }}>
-      <div style={{ background: '#15151e', padding: '10px 14px', height: 52 }} />
-      <div style={{ background: '#fff', padding: '14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{
+      margin: '0 16px 10px', borderRadius: 12, overflow: 'hidden',
+      background: 'rgba(255,255,255,0.04)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255,255,255,0.08)',
+    } as React.CSSProperties}>
+      <div style={{ background: 'rgba(0,0,0,0.25)', padding: '10px 14px', height: 52 }} />
+      <div style={{ background: 'transparent', padding: '14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div style={{ height: 18, width: 80, borderRadius: 4, background: 'linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%)', backgroundSize: '200% 100%', animation: 'driverShimmer 1.3s infinite' }} />
         <div style={{ height: 12, width: 160, borderRadius: 4, background: 'linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%)', backgroundSize: '200% 100%', animation: 'driverShimmer 1.3s infinite' }} />
       </div>
@@ -105,15 +111,26 @@ function RaceCard({ result }: { result: DriverRaceResult }) {
   return (
     <div style={{
       margin: '0 16px 10px',
-      borderRadius: 10, overflow: 'hidden',
-      border: isWin ? '1px solid rgba(255,215,0,0.35)' : isDNF ? '1px solid rgba(232,0,45,0.2)' : '1px solid #eee',
-      boxShadow: isWin ? '0 2px 12px rgba(255,215,0,0.1)' : '0 1px 4px rgba(0,0,0,0.04)',
-    }}>
-      {/* Dark header */}
-      <div style={{ background: '#15151e', padding: '10px 14px' }}>
+      borderRadius: 12, overflow: 'hidden',
+      background: isWin ? 'rgba(255,215,0,0.04)' : 'rgba(255,255,255,0.04)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      border: isWin ? '1px solid rgba(255,215,0,0.20)' : isDNF ? '1px solid rgba(232,0,45,0.20)' : '1px solid rgba(255,255,255,0.08)',
+      borderLeft: isWin ? '3px solid rgba(255,215,0,0.4)' : isDNF ? '3px solid rgba(232,0,45,0.35)' : '1px solid rgba(255,255,255,0.08)',
+      boxShadow: isWin ? '0 4px 16px rgba(255,215,0,0.10)' : '0 2px 8px rgba(0,0,0,0.15)',
+    } as React.CSSProperties}>
+      {/* Race header strip */}
+      <div style={{
+        background: 'rgba(0,0,0,0.25)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        padding: '10px 14px',
+      } as React.CSSProperties}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{
-            background: '#e8002d', color: '#fff', fontSize: 9, fontWeight: 800,
+            background: 'rgba(255,24,1,0.20)',
+            border: '1px solid rgba(255,24,1,0.35)',
+            color: '#e8002d', fontSize: 9, fontWeight: 800,
             padding: '2px 6px', borderRadius: 3, letterSpacing: 0.5, flexShrink: 0,
           }}>
             R{String(result.round).padStart(2, '0')}
@@ -123,15 +140,14 @@ function RaceCard({ result }: { result: DriverRaceResult }) {
           </span>
           <span style={{ fontSize: 14, flexShrink: 0 }}>{flag}</span>
         </div>
-        <div style={{ fontSize: 10, color: '#444', marginTop: 4 }}>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', marginTop: 4 }}>
           {result.locality} · {fmtDate(result.date)}
         </div>
       </div>
 
       {/* Result body */}
       <div style={{
-        background: '#fff', padding: '12px 14px',
-        borderLeft: isWin ? '3px solid rgba(255,215,0,0.5)' : isDNF ? '3px solid rgba(232,0,45,0.35)' : '3px solid transparent',
+        background: 'transparent', padding: '12px 14px',
         borderBottom: result.fastestLap ? '2px solid rgba(151,83,255,0.4)' : undefined,
       }}>
         {/* Position + points */}
@@ -147,24 +163,24 @@ function RaceCard({ result }: { result: DriverRaceResult }) {
               </span>
             )}
           </div>
-          <span style={{ fontSize: 15, fontWeight: 800, color: result.points > 0 ? '#e8002d' : '#ccc', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontSize: 15, fontWeight: 800, color: result.points > 0 ? '#ffffff' : 'rgba(255,255,255,0.35)', fontVariantNumeric: 'tabular-nums' }}>
             +{result.points}
-            <span style={{ fontSize: 9, marginLeft: 2 }}>PTS</span>
+            <span style={{ fontSize: 9, marginLeft: 2, color: result.points > 0 ? 'rgba(255,255,255,0.45)' : 'inherit' }}>PTS</span>
           </span>
         </div>
 
         {/* Details row */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px 14px', fontSize: 11, color: '#888' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px 14px', fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
           {result.grid > 0 && (
             <span>
               P{result.grid} start
               {pos !== null && gridDiff > 0 && <span style={{ marginLeft: 3, color: '#27B34A', fontWeight: 700 }}>▲{gridDiff}</span>}
               {pos !== null && gridDiff < 0 && <span style={{ marginLeft: 3, color: '#e8002d', fontWeight: 700 }}>▼{Math.abs(gridDiff)}</span>}
-              {pos !== null && gridDiff === 0 && <span style={{ marginLeft: 3, color: '#ccc' }}>↔</span>}
+              {pos !== null && gridDiff === 0 && <span style={{ marginLeft: 3, color: 'rgba(255,255,255,0.35)' }}>↔</span>}
             </span>
           )}
           {result.gap && (
-            <span style={{ fontFamily: 'monospace', color: '#999' }}>{result.gap}</span>
+            <span style={{ fontFamily: 'monospace', color: 'rgba(255,255,255,0.45)' }}>{result.gap}</span>
           )}
           {result.fastestLap && (
             <span style={{ color: '#9b59b6' }}>⬟ {result.fastestLapTime}</span>
@@ -186,17 +202,29 @@ function UpcomingCard({ race }: { race: Race }) {
   const flag = COUNTRY_FLAGS[race.Circuit.Location.country] ?? '🏁';
   return (
     <div style={{
-      margin: '0 16px 8px', borderRadius: 10, overflow: 'hidden',
-      border: '1px solid #eee', opacity: 0.55,
-    }}>
-      <div style={{ background: '#f8f8f8', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ background: '#ddd', color: '#aaa', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 3, letterSpacing: 0.5, flexShrink: 0 }}>
+      margin: '0 16px 8px', borderRadius: 12, overflow: 'hidden',
+      background: 'rgba(255,255,255,0.02)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      border: '1px solid rgba(255,255,255,0.06)',
+      opacity: 0.7,
+    } as React.CSSProperties}>
+      <div style={{ background: 'transparent', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 3, letterSpacing: 0.5, flexShrink: 0 }}>
           R{String(race.round).padStart(2, '0')}
         </div>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#888', flex: 1 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.7)', flex: 1 }}>
           {race.raceName.replace(' Grand Prix', ' GP')} {flag}
         </span>
-        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, color: '#bbb', background: '#eee', padding: '2px 7px', borderRadius: 3 }}>
+        <span style={{
+          fontSize: 9, fontWeight: 700, letterSpacing: 1,
+          color: 'rgba(255,255,255,0.55)',
+          background: 'rgba(255,255,255,0.05)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255,255,255,0.10)',
+          padding: '2px 7px', borderRadius: 3,
+        } as React.CSSProperties}>
           UPCOMING
         </span>
       </div>
@@ -216,12 +244,20 @@ function SeasonStatsGrid({ stats, bestRaceName }: { stats: DriverSeasonStats; be
   ];
 
   return (
-    <div style={{ margin: '0 16px 16px' }}>
+    <div className="glass-gradient-border" style={{
+      margin: '0 16px 16px', borderRadius: 14, padding: 18,
+    }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
         {cells.map(c => (
-          <div key={c.label} style={{ background: '#f5f5f0', borderRadius: 8, padding: '12px 14px' }}>
-            <div style={{ fontSize: 9, color: '#999', letterSpacing: 1.2, fontWeight: 700, marginBottom: 4 }}>{c.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#15151e', fontVariantNumeric: 'tabular-nums' }}>{c.value}</div>
+          <div key={c.label} style={{
+            background: 'rgba(0,0,0,0.20)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 8, padding: '12px 14px',
+          } as React.CSSProperties}>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', letterSpacing: 1.2, fontWeight: 700, marginBottom: 4 }}>{c.label}</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>{c.value}</div>
           </div>
         ))}
       </div>
@@ -230,11 +266,13 @@ function SeasonStatsGrid({ stats, bestRaceName }: { stats: DriverSeasonStats; be
         <div style={{
           padding: '10px 14px', borderRadius: 8,
           background: 'rgba(255,215,0,0.06)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           border: '1px solid rgba(255,215,0,0.25)',
           borderLeft: '3px solid rgba(255,215,0,0.6)',
-          fontSize: 12, color: '#666',
-        }}>
-          <span style={{ fontWeight: 700, color: '#15151e' }}>Best result: </span>
+          fontSize: 12, color: 'rgba(255,255,255,0.7)',
+        } as React.CSSProperties}>
+          <span style={{ fontWeight: 700, color: '#ffffff' }}>Best result: </span>
           P{stats.bestResult} · {bestRaceName}
         </div>
       )}
@@ -297,29 +335,46 @@ export default function DriverProfileSheet({ standing, stats, loadingStats, allR
       `}</style>
 
       {/* Backdrop */}
-      <div onClick={handleClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1999, animation: backdropAnim }} />
+      <div onClick={handleClose} style={{
+        position: 'fixed', inset: 0,
+        background: 'rgba(0,0,0,0.65)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        zIndex: 1999, animation: backdropAnim,
+      } as React.CSSProperties} />
 
-      {/* Sheet */}
+      {/* Sheet — heavy glass */}
       <div
         ref={sheetRef}
         style={isMobile ? {
           position: 'fixed', bottom: 0, left: 0, right: 0, height: '94vh',
-          background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 2000,
+          background: 'rgba(8,12,24,0.85)',
+          backdropFilter: 'blur(32px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+          borderRadius: '22px 22px 0 0',
+          borderTop: '1px solid rgba(255,255,255,0.10)',
+          boxShadow: '0 -8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)',
+          zIndex: 2000,
           display: 'flex', flexDirection: 'column',
           animation: sheetAnim,
           transform: dragOffset > 0 ? `translateY(${dragOffset}px)` : undefined,
           transition: dragOffset > 0 ? 'none' : 'transform 0.2s ease',
           overflow: 'hidden',
-        } : {
+        } as React.CSSProperties : {
           position: 'fixed', top: '50%', left: '50%',
           transform: 'translate(-50%,-50%)',
           width: 'min(680px, 90vw)', maxHeight: '88vh',
-          background: '#fff', borderRadius: 12, zIndex: 2000,
+          background: 'rgba(8,12,24,0.85)',
+          backdropFilter: 'blur(32px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+          border: '1px solid rgba(255,255,255,0.10)',
+          borderRadius: 16,
+          zIndex: 2000,
           display: 'flex', flexDirection: 'column',
           animation: sheetAnim,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)',
           overflow: 'hidden',
-        }}
+        } as React.CSSProperties}
       >
         {/* Drag handle */}
         {isMobile && (
@@ -328,8 +383,14 @@ export default function DriverProfileSheet({ standing, stats, loadingStats, allR
           </div>
         )}
 
-        {/* ── Dark header ── */}
-        <div style={{ background: '#15151e', flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
+        {/* ── Header — team-tinted glass ── */}
+        <div style={{
+          background: `linear-gradient(135deg, ${teamColor}22, rgba(255,255,255,0.03))`,
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          flexShrink: 0, position: 'relative', overflow: 'hidden',
+        } as React.CSSProperties}>
           {/* Driver number watermark */}
           <div style={{
             position: 'absolute', right: 16, top: 10,
@@ -359,7 +420,7 @@ export default function DriverProfileSheet({ standing, stats, loadingStats, allR
                 <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {standing.Driver.givenName} {standing.Driver.familyName}
                 </div>
-                <div style={{ fontSize: 12, color: '#555', marginTop: 3 }}>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 3 }}>
                   {flag} {standing.Driver.nationality}
                 </div>
               </div>
@@ -386,7 +447,7 @@ export default function DriverProfileSheet({ standing, stats, loadingStats, allR
               { label: 'BEST RESULT', value: stats?.bestResult != null ? `P${stats.bestResult}` : '–' },
             ].map(({ label, value }, i) => (
               <div key={label} style={{ flex: 1, textAlign: 'center', padding: '12px 6px', borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
-                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: 1.5, color: '#555', marginBottom: 4 }}>{label}</div>
+                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: 1.5, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>{label}</div>
                 <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{value}</div>
               </div>
             ))}
@@ -394,12 +455,18 @@ export default function DriverProfileSheet({ standing, stats, loadingStats, allR
         </div>
 
         {/* ── Scrollable body ── */}
-        <div style={{ flex: 1, overflowY: 'auto', background: '#f5f5f0', WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ flex: 1, overflowY: 'auto', background: 'transparent', WebkitOverflowScrolling: 'touch' }}>
 
           {/* Season at a glance */}
           {(stats?.results.length ?? 0) > 0 && (
-            <div style={{ background: '#fff', padding: '14px 0 12px', borderBottom: '1px solid #eee' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: '#aaa', padding: '0 16px 10px' }}>
+            <div style={{
+              background: 'rgba(0,0,0,0.2)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              padding: '14px 0 12px',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+            } as React.CSSProperties}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'rgba(255,255,255,0.45)', padding: '0 16px 10px' }}>
                 SEASON AT A GLANCE
               </div>
               <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingLeft: 16, paddingRight: 16, scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', paddingBottom: 4 }}>
@@ -415,13 +482,13 @@ export default function DriverProfileSheet({ standing, stats, loadingStats, allR
                     }}>
                       {bubbleText(r.position)}
                     </div>
-                    <div style={{ fontSize: 9, color: '#aaa', marginTop: 4, fontWeight: 600 }}>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.55)', marginTop: 4, fontWeight: 600 }}>
                       {countryShort(r.country, r.locality)}
                     </div>
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 11, color: '#aaa', textAlign: 'center', marginTop: 10, paddingBottom: 2 }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', textAlign: 'center', marginTop: 10, paddingBottom: 2 }}>
                 {stats!.totalPoints} PTS across {stats!.completedRaces} race{stats!.completedRaces !== 1 ? 's' : ''} · Avg {stats!.pointsPerRace} PTS/race
               </div>
             </div>
@@ -429,9 +496,9 @@ export default function DriverProfileSheet({ standing, stats, loadingStats, allR
 
           {/* Race results heading */}
           <div style={{ padding: '16px 16px 8px', display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#15151e' }}>Race</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#ffffff' }}>Race</span>
             <span style={{ fontSize: 16, fontFamily: 'Georgia, serif', fontStyle: 'italic', color: '#e8002d' }}>Results</span>
-            <span style={{ fontSize: 10, color: '#bbb', letterSpacing: 1, marginLeft: 4 }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', letterSpacing: 1, marginLeft: 4 }}>
               2026 · {stats?.completedRaces ?? 0} RACES COMPLETED
             </span>
           </div>

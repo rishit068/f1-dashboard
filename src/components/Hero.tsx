@@ -12,12 +12,18 @@ interface Props {
 }
 
 const STAT_BOX_STYLE: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.04)',
+  // Glass stat box — see .glass utility in index.css
+  background: 'rgba(255,255,255,0.07)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
   border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: 6,
-  padding: '10px 16px',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.10)',
+  borderRadius: 12,
+  padding: '14px 16px',
   minWidth: 140,
   flexShrink: 0,
+  position: 'relative',
+  overflow: 'hidden',
 };
 
 function SkeletonHero({ isMobile }: { isMobile: boolean }) {
@@ -90,7 +96,8 @@ export default function Hero({ race, loading, total }: Props) {
 
   return (
     <section id="next" style={{
-      background: '#15151e',
+      // Translucent dark gradient — lets background orbs glow through
+      background: 'linear-gradient(180deg, rgba(15,15,25,0.55) 0%, rgba(4,6,13,0.35) 100%)',
       paddingTop: navH,
       minHeight: isMobile ? 'auto' : '100vh',
       position: 'relative',
@@ -118,14 +125,17 @@ export default function Hero({ race, loading, total }: Props) {
         {/* ── Left / Top column ─────────────────────────────────────────────── */}
         <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: isMobile ? 14 : 20 }}>
 
-          {/* Badge row */}
+          {/* Badge row — frosted red glass pill */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
-              background: 'rgba(232,0,45,0.15)',
-              border: '1px solid rgba(232,0,45,0.3)',
-              borderRadius: 20, padding: '4px 14px',
+              background: 'rgba(255,24,1,0.10)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,24,1,0.25)',
+              boxShadow: '0 4px 12px rgba(255,24,1,0.10), inset 0 1px 0 rgba(255,24,1,0.15)',
+              borderRadius: 20, padding: '5px 14px',
               display: 'flex', alignItems: 'center', gap: 6,
-            }}>
+            } as React.CSSProperties}>
               <span style={{ fontSize: 8, color: '#e8002d' }}>●</span>
               <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#e8002d' }}>
                 ROUND {race.round} · UP NEXT
@@ -169,16 +179,19 @@ export default function Hero({ race, loading, total }: Props) {
             paddingRight: isMobile ? 16 : 0,
           } as React.CSSProperties}>
             <div style={STAT_BOX_STYLE}>
+              <StatBoxTopLine />
               <div className="label label-white" style={{ marginBottom: 6 }}>Lap Record</div>
               <div style={{ color: '#fff', fontSize: 16, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>1:29.708</div>
             </div>
             <div style={STAT_BOX_STYLE}>
+              <StatBoxTopLine />
               <div className="label label-white" style={{ marginBottom: 6 }}>Qualifying</div>
               <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>
                 {new Date(qualDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
               </div>
             </div>
             <div style={STAT_BOX_STYLE}>
+              <StatBoxTopLine />
               <div className="label label-white" style={{ marginBottom: 6 }}>Race Date</div>
               <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{dateRange}</div>
             </div>
@@ -198,18 +211,34 @@ export default function Hero({ race, loading, total }: Props) {
   );
 }
 
-/* Compact flip tile for mobile */
+/* Top-edge highlight line for glass cards (subtle horizontal gradient). */
+function StatBoxTopLine() {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 1,
+        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+        pointerEvents: 'none',
+      }}
+    />
+  );
+}
+
+/* Compact flip tile for mobile — gradient-border glass */
 function MiniFlip({ value, label }: { value: number; label: string }) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div style={{
-        background: '#1e1e2a',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 6, width: '100%',
-        padding: '10px 4px', textAlign: 'center',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+      <div className="glass-gradient-border" style={{
+        borderRadius: 14, width: '100%',
+        padding: '14px 4px', textAlign: 'center',
+        position: 'relative',
       }}>
-        <span style={{ fontSize: 32, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+        <span style={{
+          fontSize: 32, fontWeight: 900, color: '#fff',
+          fontVariantNumeric: 'tabular-nums', lineHeight: 1,
+          textShadow: '0 0 20px rgba(0,212,255,0.2)',
+        }}>
           {padTwo(value)}
         </span>
       </div>

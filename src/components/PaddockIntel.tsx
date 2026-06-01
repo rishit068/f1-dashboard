@@ -42,19 +42,31 @@ export default function PaddockIntel({ driverStandings, loading, round }: Props)
         <div className="skeleton-light" style={{ height: 80, borderRadius: 8, marginBottom: 16 }} />
       ) : leader ? (
         <div style={{
-          background: '#15151e', borderRadius: 8,
+          // Cyan-gradient glass leader card
+          background: 'linear-gradient(135deg, rgba(0,212,255,0.08), rgba(0,212,255,0.03))',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(0,212,255,0.18)',
+          borderRadius: 14,
           padding: isMobile ? '14px 16px' : '16px 20px',
           marginBottom: isMobile ? 16 : 20,
           position: 'relative', overflow: 'hidden',
-        }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: teamColor }} />
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(0,212,255,0.2)',
+        } as React.CSSProperties}>
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+            background: teamColor, boxShadow: `0 0 8px ${teamColor}80`,
+          }} />
           <div style={{
             display: 'inline-block',
-            background: 'rgba(232,0,45,0.2)', border: '1px solid rgba(232,0,45,0.4)',
+            background: 'rgba(255,24,1,0.10)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,24,1,0.25)',
             borderRadius: 12, padding: '2px 10px',
             fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#e8002d',
             marginBottom: 10,
-          }}>
+          } as React.CSSProperties}>
             FASTEST BY {round} ROUNDS
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -78,20 +90,28 @@ export default function PaddockIntel({ driverStandings, loading, round }: Props)
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {NEWS_STORIES.map((story, idx) => (
           <div key={idx}>
-            {idx > 0 && <div style={{ height: 1, background: '#f0f0ea', margin: isMobile ? '12px 0' : '14px 0' }} />}
+            {idx > 0 && <div style={{
+              height: 1,
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)',
+              margin: isMobile ? '12px 0' : '14px 0',
+            }} />}
             <div style={{ padding: '4px 0' }}>
               <div style={{
                 display: 'inline-block',
-                background: story.tagColor, color: '#fff',
+                background: `${story.tagColor === '#15151e' ? 'rgba(255,255,255,0.08)' : 'rgba(255,24,1,0.10)'}`,
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: `1px solid ${story.tagColor === '#15151e' ? 'rgba(255,255,255,0.10)' : 'rgba(255,24,1,0.25)'}`,
+                color: story.tagColor === '#15151e' ? 'rgba(255,255,255,0.7)' : '#e8002d',
                 fontSize: 8, fontWeight: 700, letterSpacing: 1.8,
                 padding: '3px 10px', borderRadius: 3, marginBottom: 8,
-              }}>
+              } as React.CSSProperties}>
                 {story.tag}
               </div>
-              <div style={{ fontSize: isMobile ? 13 : 13, fontWeight: 700, color: '#15151e', lineHeight: 1.4, marginBottom: 6 }}>
+              <div style={{ fontSize: isMobile ? 13 : 13, fontWeight: 700, color: '#ffffff', lineHeight: 1.4, marginBottom: 6 }}>
                 {story.headline}
               </div>
-              <div style={{ fontSize: isMobile ? 12 : 12, color: '#767676', lineHeight: 1.6 }}>
+              <div style={{ fontSize: isMobile ? 12 : 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>
                 {story.body}
               </div>
             </div>

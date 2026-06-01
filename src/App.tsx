@@ -19,6 +19,17 @@ import DriverProfileSheet from './components/DriverProfileSheet';
 import LivePage from './pages/LivePage';
 import type { SelectedRace, DriverStanding } from './types';
 
+// Reusable glass column style for the three standings panels
+const glassColumnStyle: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.03)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  border: '1px solid rgba(255,255,255,0.07)',
+  borderRadius: 20,
+  padding: '28px 24px',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
+};
+
 export default function App() {
   // Intro plays on every page load — no storage gate
   const [introDone, setIntroDone] = useState(false);
@@ -128,6 +139,17 @@ export default function App() {
 
   return (
     <>
+      {/* ── Background orb layer (glass design depends on this) ────────────
+          Fixed full-viewport behind everything. Five soft coloured radial
+          gradients give the frosted glass effect something to refract. */}
+      <div className="bg-orb-layer" aria-hidden="true">
+        <div className="bg-orb bg-orb--tl" />
+        <div className="bg-orb bg-orb--tr" />
+        <div className="bg-orb bg-orb--c"  />
+        <div className="bg-orb bg-orb--bl" />
+        <div className="bg-orb bg-orb--br" />
+      </div>
+
       {!introDone && <WelcomeIntro onComplete={() => setIntroDone(true)} />}
 
       {/* ── /live route — dedicated standalone page ── */}
@@ -181,36 +203,36 @@ export default function App() {
             className={contentVisible ? 'fade-up' : ''}
             style={{ animationDelay: '160ms', animationFillMode: 'both' }}
           >
-            <section style={{ background: '#ffffff', borderTop: '1px solid #e8e8e0', borderBottom: '1px solid #e8e8e0' }}>
+            <section style={{ background: 'transparent', borderTop: 'none', borderBottom: 'none' }}>
               {isMobile ? (
-                /* ── Mobile: stacked 1-column ── */
-                <div style={{ padding: '28px 16px 32px' }}>
-                  <div id="drivers">
+                /* ── Mobile: stacked glass cards, full width ── */
+                <div style={{ padding: '28px 16px 32px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div id="drivers" style={glassColumnStyle}>
                     <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} allRaces={allRaces} onSelectDriver={setSelectedDriver} />
                   </div>
-                  <div style={{ height: 1, background: '#e8e8e0', margin: '28px 0' }} />
-                  <div id="constructors">
+                  <div id="constructors" style={glassColumnStyle}>
                     <ConstructorsCup standings={constructorStandings} driverStandings={driverStandings} loading={loading} round={currentRound} />
                   </div>
-                  <div style={{ height: 1, background: '#e8e8e0', margin: '28px 0' }} />
-                  <PaddockIntel driverStandings={driverStandings} loading={loading} round={currentRound} />
+                  <div style={glassColumnStyle}>
+                    <PaddockIntel driverStandings={driverStandings} loading={loading} round={currentRound} />
+                  </div>
                 </div>
               ) : (
-                /* ── Desktop: 3-column grid ── */
+                /* ── Desktop: 3 glass columns side-by-side ── */
                 <div style={{
                   maxWidth: 1200, margin: '0 auto',
                   padding: '52px 32px 60px',
                   display: 'grid',
                   gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 0,
+                  gap: 14,
                 }}>
-                  <div id="drivers" style={{ paddingRight: 40 }}>
+                  <div id="drivers" style={glassColumnStyle}>
                     <DriversChampionship standings={driverStandings} loading={loading} round={currentRound} allRaces={allRaces} onSelectDriver={setSelectedDriver} />
                   </div>
-                  <div style={{ borderLeft: '1px solid #e8e8e0', borderRight: '1px solid #e8e8e0', paddingLeft: 40, paddingRight: 40 }}>
+                  <div style={glassColumnStyle}>
                     <ConstructorsCup standings={constructorStandings} driverStandings={driverStandings} loading={loading} round={currentRound} />
                   </div>
-                  <div id="constructors" style={{ paddingLeft: 40 }}>
+                  <div id="constructors" style={glassColumnStyle}>
                     <PaddockIntel driverStandings={driverStandings} loading={loading} round={currentRound} />
                   </div>
                 </div>

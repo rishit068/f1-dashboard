@@ -25,13 +25,15 @@ export default function PodiumCard({ results }: Props) {
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #15151e 0%, #1e1e2a 100%)',
-      borderRadius: 12, margin: '0 16px 8px',
+      background: 'linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03))',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      borderRadius: 16,
       padding: '16px 12px 12px',
       display: 'flex', gap: 6,
-      border: '1px solid rgba(255,255,255,0.06)',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-    }}>
+      border: '1px solid rgba(255,255,255,0.10)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.15)',
+    } as React.CSSProperties}>
       {entries.map(({ pos, result: r, medal }) => {
         const flag = NAT_FLAGS[r.nationality] ?? '';
         const isFirst = pos === 1;

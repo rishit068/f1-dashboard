@@ -40,12 +40,16 @@ export default function BottomTabBar({ active, isLive, liveSession = null, onTab
     <nav style={{
       position: 'fixed', bottom: 0, left: 0, right: 0,
       height: 64,
-      background: '#15151e',
-      borderTop: '1px solid #2a2a35',
+      // Frosted mobile tab bar — floats over content
+      background: 'rgba(4,6,13,0.75)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      borderTop: '1px solid rgba(255,255,255,0.07)',
+      boxShadow: '0 -4px 24px rgba(0,0,0,0.5)',
       display: 'flex', alignItems: 'stretch',
       paddingBottom: 'env(safe-area-inset-bottom)',
       zIndex: 1000,
-    }}>
+    } as React.CSSProperties}>
       {TABS.map(tab => {
         const isActive = active === tab.id;
         const isLiveTab = tab.id === 'live';
@@ -68,16 +72,26 @@ export default function BottomTabBar({ active, isLive, liveSession = null, onTab
             }}
             aria-label={tab.label}
           >
-            {/* Icon */}
+            {/* Icon — wrapped in cyan glass pill when active */}
             <span style={{
-              fontSize: isLiveTab ? 14 : 20,
-              lineHeight: 1,
-              color: isLiveTab
-                ? (isLive ? liveColor : '#555')
-                : isActive ? '#e8002d' : '#666',
-              animation: isLiveTab && isLive ? 'livePulse 1.2s ease-in-out infinite' : 'none',
-            }}>
-              {tab.icon}
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 32, height: 26, borderRadius: 10,
+              background: isActive ? 'rgba(0,212,255,0.12)' : 'transparent',
+              border: isActive ? '1px solid rgba(0,212,255,0.20)' : '1px solid transparent',
+              backdropFilter: isActive ? 'blur(8px)' : 'none',
+              WebkitBackdropFilter: isActive ? 'blur(8px)' : 'none',
+              transition: 'background 0.2s, border-color 0.2s',
+            } as React.CSSProperties}>
+              <span style={{
+                fontSize: isLiveTab ? 14 : 18,
+                lineHeight: 1,
+                color: isLiveTab
+                  ? (isLive ? liveColor : '#555')
+                  : isActive ? '#e8002d' : '#666',
+                animation: isLiveTab && isLive ? 'livePulse 1.2s ease-in-out infinite' : 'none',
+              }}>
+                {tab.icon}
+              </span>
             </span>
 
             {/* Label */}

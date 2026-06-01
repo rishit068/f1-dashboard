@@ -68,10 +68,10 @@ function handleShare(raceName: string) {
 function FlNote({ driver, time, pos }: { driver: string; time: string; pos: number }) {
   if (!driver || pos > 10) return null;
   return (
-    <div style={{ padding: '10px 16px 4px', fontSize: 11, color: '#888' }}>
+    <div style={{ padding: '10px 16px 4px', fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
       <span style={{ color: '#d783ff', marginRight: 4 }}>⬟</span>
       Fastest Lap bonus point awarded to{' '}
-      <strong style={{ color: '#555' }}>{driver}</strong>
+      <strong style={{ color: '#ffffff' }}>{driver}</strong>
       {time ? ` (${time})` : ''} (P{pos})
     </div>
   );
@@ -130,45 +130,54 @@ export default function RaceResultSheet({ race, onClose }: Props) {
         @keyframes fadeBackdropOut{ from { opacity:1 } to { opacity:0 } }
       `}</style>
 
-      {/* ── Backdrop ── */}
+      {/* ── Backdrop — blurred dim ── */}
       <div
         onClick={handleClose}
         style={{
           position: 'fixed', inset: 0,
-          background: 'rgba(0,0,0,0.5)',
+          background: 'rgba(0,0,0,0.65)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           zIndex: 1999,
           animation: backdropAnim,
-        }}
+        } as React.CSSProperties}
       />
 
-      {/* ── Sheet / Modal ── */}
+      {/* ── Sheet / Modal — heavy glass ── */}
       <div
         ref={sheetRef}
         style={isMobile ? {
           position: 'fixed', bottom: 0, left: 0, right: 0,
           height: '92vh',
-          background: '#ffffff',
-          borderRadius: '20px 20px 0 0',
+          background: 'rgba(8,12,24,0.85)',
+          backdropFilter: 'blur(32px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+          borderRadius: '22px 22px 0 0',
+          borderTop: '1px solid rgba(255,255,255,0.10)',
+          boxShadow: '0 -8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)',
           zIndex: 2000,
           display: 'flex', flexDirection: 'column',
           animation: sheetAnim,
           transform: dragOffset > 0 ? `translateY(${dragOffset}px)` : undefined,
           transition: dragOffset > 0 ? 'none' : 'transform 0.2s ease',
           overflow: 'hidden',
-        } : {
+        } as React.CSSProperties : {
           position: 'fixed',
           top: '50%', left: '50%',
           transform: 'translate(-50%,-50%)',
           width: 'min(680px, 90vw)',
           maxHeight: '85vh',
-          background: '#ffffff',
-          borderRadius: 12,
+          background: 'rgba(8,12,24,0.85)',
+          backdropFilter: 'blur(32px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+          border: '1px solid rgba(255,255,255,0.10)',
+          borderRadius: 16,
           zIndex: 2000,
           display: 'flex', flexDirection: 'column',
           animation: sheetAnim,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)',
           overflow: 'hidden',
-        }}
+        } as React.CSSProperties}
       >
         {/* ── Drag handle (mobile only) ── */}
         {isMobile && (
@@ -263,13 +272,13 @@ export default function RaceResultSheet({ race, onClose }: Props) {
         </div>
 
         {/* ── Scrollable body ── */}
-        <div style={{ flex: 1, overflowY: 'auto', background: '#f5f5f0', WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ flex: 1, overflowY: 'auto', background: 'transparent', WebkitOverflowScrolling: 'touch' }}>
           {loading && (
             <div>
               <div style={{ padding: '16px 16px 8px' }}>
                 <div className="skeleton-light" style={{ height: 100, borderRadius: 12 }} />
               </div>
-              <div style={{ background: '#fff', marginTop: 8 }}>
+              <div style={{ background: 'transparent', marginTop: 8 }}>
                 <ResultSkeleton />
               </div>
             </div>
@@ -278,7 +287,7 @@ export default function RaceResultSheet({ race, onClose }: Props) {
           {error && (
             <div style={{ padding: 40, textAlign: 'center' }}>
               <div style={{ fontSize: 32, marginBottom: 12 }}>🏁</div>
-              <div style={{ fontSize: 14, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>{error}</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 16, lineHeight: 1.6 }}>{error}</div>
               <button
                 onClick={retry}
                 style={{
@@ -296,21 +305,21 @@ export default function RaceResultSheet({ race, onClose }: Props) {
           {data && (
             <>
               {/* Podium */}
-              <div style={{ padding: '12px 0 0' }}>
+              <div style={{ padding: '12px 16px 0' }}>
                 <PodiumCard results={data.results} />
               </div>
 
               {/* Results table heading */}
               <div style={{ padding: '14px 16px 8px', display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <span style={{ fontSize: 16, fontWeight: 700, color: '#15151e' }}>Race</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#ffffff' }}>Race</span>
                 <span style={{ fontSize: 16, fontFamily: 'Georgia, serif', fontStyle: 'italic', color: '#e8002d' }}>Results</span>
-                <span style={{ fontSize: 10, color: '#bbb', letterSpacing: 1, marginLeft: 4 }}>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, marginLeft: 4 }}>
                   {data.date ? new Date(data.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
                 </span>
               </div>
 
-              {/* Rows */}
-              <div style={{ background: '#fff', borderTop: '1px solid #e8e8e0', borderBottom: '1px solid #e8e8e0' }}>
+              {/* Rows — each row gets glass treatment via ResultRow */}
+              <div style={{ background: 'transparent', padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {data.results.map((r, i) => (
                   <ResultRow key={`${r.driverNumber}-${i}`} result={r} index={i} />
                 ))}
